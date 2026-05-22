@@ -1,0 +1,202 @@
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.5'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.openapi.generator' version '7.12.0'
+	id 'com.google.cloud.tools.jib' version '3.4.5'
+	id 'com.diffplug.spotless' version '6.25.0'
+}
+
+group = 'com.ph'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion.set(JavaLanguageVersion.of(21))
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+configurations.configureEach {
+	exclude group: 'org.slf4j', module: 'slf4j-simple'
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation project(':common')
+
+	// Spring Boot Starters
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	// Database
+	implementation 'org.liquibase:liquibase-core'
+	runtimeOnly 'org.postgresql:postgresql'
+	runtimeOnly 'com.h2database:h2'
+
+	// MapStruct + Lombok
+	implementation 'org.mapstruct:mapstruct:1.6.3'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+	annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+	testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+
+	// OpenAPI / Springdoc
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4'
+	implementation 'org.openapitools:openapi-generator:7.12.0'
+
+	// Spring Cloud
+	implementation 'org.springframework.cloud:spring-cloud-starter-config'
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+	// Spring Cloud Stream
+	implementation 'org.springframework.cloud:spring-cloud-stream'
+	implementation 'org.springframework.cloud:spring-cloud-stream-binder-kafka'
+	testImplementation 'org.springframework.cloud:spring-cloud-stream-test-binder'
+
+	// Metrics / Tracing
+	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+	implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+
+	// Tests
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-web'
+	testImplementation 'io.rest-assured:rest-assured'
+	testImplementation 'io.rest-assured:spring-mock-mvc'
+	testImplementation 'com.h2database:h2'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.boot:spring-boot-dependencies:3.4.5"  // ✅ ajouté
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:2024.0.0"
+	}
+}
+
+// Jib
+jib {
+	from {
+		image = 'eclipse-temurin:21-jre-alpine'
+		platforms {
+			platform {
+				os = 'linux'
+				architecture = 'amd64'
+			}
+		}
+	}
+	to {
+		image = 'herman87/ph_user'
+		tags = ['latest', version.toString()]
+	}
+	container {
+		ports = ['9000']
+		jvmFlags = [
+				'-XX:+UseContainerSupport',
+				'-XX:MaxRAMPercentage=75.0',
+				'-XX:+UseZGC',
+				'-Djava.security.egd=file:/dev/./urandom',
+				'-Dspring.backgroundpreinitializer.ignore=true'
+		]
+		labels = [
+				'maintainer': 'herman87',
+				'version'   : version.toString()
+		]
+		creationTime = 'USE_CURRENT_TIMESTAMP'
+		user = 'nobody'
+		environment = [
+				'SPRING_OUTPUT_ANSI_ENABLED': 'NEVER'
+		]
+	}
+}
+
+// openapi generator
+def commonOpenApiConfig = [
+		dateLibrary         : "java8-localdatetime",
+		library             : "spring-boot",
+		interfaceOnly       : "true",
+		useTags             : "true",
+		skipDefaultInterface: "true",
+		useSpringBoot3      : "true",
+		openApiNullable     : "false"
+]
+
+def commonTypeMappings = [
+		"time"     : "java.time.LocalTime",
+		"date"     : "java.time.LocalDate",
+		"date-time": "java.time.LocalDateTime"
+]
+
+def commonImportMappings = [
+		"LocalTime"    : "java.time.LocalTime",
+		"LocalDate"    : "java.time.LocalDate",
+		"LocalDateTime": "java.time.LocalDateTime"
+]
+
+def openApiSpecs = [
+		[
+				taskName : 'openApiGenerateMain',
+				inputSpec: "$rootDir/openapi/main.yaml",
+				outputDir: "generated/sources/openapi",
+				apiPackage: "com.ph.user.generated.api",
+				modelPkg  : "com.ph.user.generated.model"
+		]
+]
+
+openApiSpecs.each { spec ->
+	tasks.register(spec.taskName, GenerateTask) {
+		generatorName = "spring"
+		templateDir = "$rootDir/openapi/templates/spring-boot"
+		inputSpec = spec.inputSpec
+		outputDir = layout.buildDirectory.file(spec.outputDir).get().asFile.path
+		apiPackage = spec.apiPackage
+		modelPackage = spec.modelPkg
+		configOptions = commonOpenApiConfig
+		typeMappings = commonTypeMappings
+		importMappings = commonImportMappings
+	}
+}
+
+sourceSets {
+	main {
+		java {
+			openApiSpecs.each { spec ->
+				srcDir layout.buildDirectory.file("${spec.outputDir}/src/main/java").get().asFile.path
+			}
+		}
+	}
+}
+
+compileJava.dependsOn(openApiSpecs.collect { it.taskName })
+
+spotless {
+	java {
+		targetExclude("**/generated/**")
+		importOrder()
+		removeUnusedImports()
+		googleJavaFormat()
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

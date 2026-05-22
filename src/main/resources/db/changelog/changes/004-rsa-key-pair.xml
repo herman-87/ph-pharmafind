@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="009-create-rsa-key-pair-table" author="codex">
+        <createTable tableName="t_rsa_key_pair">
+            <column name="c_key_id" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_t_rsa_key_pair"/>
+            </column>
+            <column name="c_public_key" type="VARCHAR(4096)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="c_private_key" type="VARCHAR(8192)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="c_created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="c_active" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="t_rsa_key_pair"
+                     indexName="idx_t_rsa_key_pair_c_active">
+            <column name="c_active"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
