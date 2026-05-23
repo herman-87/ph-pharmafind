@@ -1,7 +1,7 @@
-package com.ph.user.configuration;
+package com.ph.pharmafind.configuration;
 
-import com.ph.user.configuration.properties.AppSecurityProperties;
-import com.ph.user.jwt.JwtProperties;
+import com.ph.pharmafind.configuration.properties.AppSecurityProperties;
+import com.ph.pharmafind.jwt.JwtProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 

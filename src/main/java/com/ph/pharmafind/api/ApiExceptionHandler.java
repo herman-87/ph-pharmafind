@@ -1,4 +1,4 @@
-package com.ph.user.api;
+package com.ph.pharmafind.api;
 
 import cm.fastrelays.common.exception.ConflictException;
 import cm.fastrelays.common.exception.ResourceNotFoundException;

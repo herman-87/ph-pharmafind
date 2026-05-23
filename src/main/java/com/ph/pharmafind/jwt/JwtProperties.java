@@ -1,4 +1,4 @@
-package com.ph.user.jwt;
+package com.ph.pharmafind.jwt;
 
 import java.nio.file.Path;
 import java.time.Duration;

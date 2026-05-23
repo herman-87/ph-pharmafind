@@ -1,4 +1,4 @@
-rootProject.name = 'user'
+rootProject.name = 'pharmafind'
 
 include 'common'
 project(':common').projectDir = file('common')

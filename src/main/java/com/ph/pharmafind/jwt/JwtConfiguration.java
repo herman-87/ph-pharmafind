@@ -1,4 +1,4 @@
-package com.ph.user.jwt;
+package com.ph.pharmafind.jwt;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
