@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="001-create-owner-table" author="pharmafind">
+        <createTable tableName="t_owner">
+            <column name="c_id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="c_username" type="VARCHAR(120)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="c_created_at" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="c_updated_at" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="002-create-pharmacy-table" author="pharmafind">
+        <createTable tableName="t_pharmacy">
+            <column name="c_id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="c_name" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="c_email" type="VARCHAR(190)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="c_phone" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="c_city" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="c_quarter" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="c_address" type="VARCHAR(300)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="c_gps_coordinates" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="c_owner_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="c_created_at" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="c_updated_at" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="003-add-pharmacy-owner-foreign-key" author="pharmafind">
+        <addForeignKeyConstraint
+            baseTableName="t_pharmacy"
+            baseColumnNames="c_owner_id"
+            referencedTableName="t_owner"
+            referencedColumnNames="c_id"
+            constraintName="fk_pharmacy_owner"/>
+    </changeSet>
+
+</databaseChangeLog>
