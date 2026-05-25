@@ -29,6 +29,8 @@ components:
           type: string
         path:
           type: string
+        errorCode:
+          type: integer
         violations:
           type: object
           additionalProperties:
@@ -285,14 +287,12 @@ components:
           format: int64
         totalPages:
           type: integer
-
 paths:
-
   /api/pharmacies:
     post:
       tags: [Pharmacy]
       operationId: createPharmacy
-      summary: Créer une pharmacie et son compte propriétaire
+      summary: Create a pharmacy and its owner account
       requestBody:
         required: true
         content:
@@ -301,28 +301,27 @@ paths:
               $ref: '#/components/schemas/CreatePharmacyRequestDTO'
       responses:
         '201':
-          description: Pharmacie créée — retourne uniquement l'id
+          description: Pharmacy created — returns only the id
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PharmacyIdResponseDTO'
         '400':
-          description: Erreur de validation
+          description: "40001 — Validation error, 40002 — Invalid email format, 40003 — Invalid phone format, 40004 — Password mismatch, 40005 — Weak password"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponseDTO'
         '409':
-          description: Email, téléphone ou nom de pharmacie déjà utilisé
+          description: "40901 — Email already exists, 40902 — Phone already exists, 40903 — Pharmacy name already exists"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponseDTO'
-
     get:
       tags: [Pharmacy]
       operationId: listPharmacies
-      summary: Lister les pharmacies actives
+      summary: List active pharmacies
       parameters:
         - name: page
           in: query
@@ -344,7 +343,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Liste paginée
+          description: Paginated list
           content:
             application/json:
               schema:
@@ -354,7 +353,7 @@ paths:
     get:
       tags: [Pharmacy]
       operationId: getPharmacy
-      summary: Détails d'une pharmacie
+      summary: Pharmacy details
       parameters:
         - name: id
           in: path
@@ -364,22 +363,21 @@ paths:
             format: uuid
       responses:
         '200':
-          description: Détails de la pharmacie
+          description: Pharmacy details
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PharmacyResponseDTO'
         '404':
-          description: Pharmacie introuvable
+          description: "40401 — Pharmacy not found"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponseDTO'
-
     put:
       tags: [Pharmacy]
       operationId: updatePharmacy
-      summary: Modifier une pharmacie
+      summary: Update a pharmacy
       security:
         - BearerAuth: []
       parameters:
@@ -397,36 +395,35 @@ paths:
               $ref: '#/components/schemas/UpdatePharmacyRequestDTO'
       responses:
         '204':
-          description: Mise à jour effectuée — aucun contenu retourné
+          description: Update completed — no content returned
         '400':
-          description: Erreur de validation
+          description: "40001 — Validation error, 40002 — Invalid email format, 40003 — Invalid phone format"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponseDTO'
         '401':
-          description: Non authentifié
+          description: "40101 — Not authenticated, 40102 — Token expired, 40103 — Token invalid"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponseDTO'
         '403':
-          description: Accès refusé — pas propriétaire
+          description: "40301 — Access denied"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponseDTO'
         '404':
-          description: Pharmacie introuvable
+          description: "40401 — Pharmacy not found"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponseDTO'
-
     delete:
       tags: [Pharmacy]
       operationId: deletePharmacy
-      summary: Supprimer une pharmacie
+      summary: Delete a pharmacy
       security:
         - BearerAuth: []
       parameters:
@@ -438,31 +435,30 @@ paths:
             format: uuid
       responses:
         '204':
-          description: Suppression effectuée — aucun contenu retourné
+          description: Deletion completed — no content returned
         '401':
-          description: Non authentifié
+          description: "40101 — Not authenticated, 40102 — Token expired, 40103 — Token invalid"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponseDTO'
         '403':
-          description: Accès refusé
+          description: "40301 — Access denied"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponseDTO'
         '404':
-          description: Pharmacie introuvable
+          description: "40401 — Pharmacy not found"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponseDTO'
-
   /api/pharmacies/{id}/verify:
     post:
       tags: [Pharmacy]
       operationId: verifyPharmacy
-      summary: Vérifier le compte pharmacie via token email
+      summary: Verify pharmacy account via email token
       parameters:
         - name: id
           in: path
@@ -477,15 +473,15 @@ paths:
             type: string
       responses:
         '204':
-          description: Compte vérifié avec succès
+          description: Account verified successfully
         '400':
-          description: Token invalide ou expiré
+          description: "40006 — Invalid token, 40007 — Token expired"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponseDTO'
         '404':
-          description: Pharmacie introuvable
+          description: "40401 — Pharmacy not found"
           content:
             application/json:
               schema:

@@ -5,14 +5,14 @@ import lombok.Getter;
 @Getter
 public abstract class ApiException extends RuntimeException {
 
-  private final ErrorCode errorCode;
+  private final int errorCode;
 
-  protected ApiException(ErrorCode errorCode, String message) {
+  protected ApiException(int errorCode, String message) {
     super(message);
     this.errorCode = errorCode;
   }
 
-  protected ApiException(ErrorCode errorCode, String message, Throwable cause) {
+  protected ApiException(int errorCode, String message, Throwable cause) {
     super(message, cause);
     this.errorCode = errorCode;
   }

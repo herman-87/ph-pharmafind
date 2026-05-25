@@ -3,10 +3,10 @@ package cm.fastrelays.common.exception;
 public class InternalServerError extends ApiException {
 
   public InternalServerError(String message) {
-    super(ErrorCode.INTERNAL_ERROR, message);
+    super(50001, message);
   }
 
-  public InternalServerError(ErrorCode errorCode, String message) {
+  public InternalServerError(int errorCode, String message) {
     super(errorCode, message);
   }
 }

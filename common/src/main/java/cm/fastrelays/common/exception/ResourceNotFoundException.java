@@ -3,10 +3,10 @@ package cm.fastrelays.common.exception;
 public class ResourceNotFoundException extends ApiException {
 
   public ResourceNotFoundException(String message) {
-    super(ErrorCode.RESOURCE_NOT_FOUND, message);
+    super(40402, message);
   }
 
-  public ResourceNotFoundException(ErrorCode errorCode, String message) {
+  public ResourceNotFoundException(int errorCode, String message) {
     super(errorCode, message);
   }
 }

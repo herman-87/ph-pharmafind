@@ -3,10 +3,10 @@ package cm.fastrelays.common.exception;
 public class BadRequestException extends ApiException {
 
   public BadRequestException(String message) {
-    super(ErrorCode.VALIDATION_ERROR, message);
+    super(40001, message);
   }
 
-  public BadRequestException(ErrorCode errorCode, String message) {
+  public BadRequestException(int errorCode, String message) {
     super(errorCode, message);
   }
 }
