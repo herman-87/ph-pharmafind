@@ -1,5 +1,6 @@
 package cm.fastrelays.common.api;
 
+import cm.fastrelays.common.exception.ApiException;
 import cm.fastrelays.common.exception.ConflictException;
 import cm.fastrelays.common.exception.ExternalServiceCallException;
 import cm.fastrelays.common.exception.InternalServerError;
@@ -47,6 +48,10 @@ public class ControllerAdvice {
     body.put("path", request.getRequestURI());
     body.put("cause", safeMessage(ex.getCause()));
     body.put("rootCause", safeMessage(rootCause(ex)));
+
+    if (ex instanceof ApiException apiEx) {
+      body.put("errorCode", apiEx.getErrorCode().code());
+    }
 
     return ResponseEntity.status(status).body(body);
   }

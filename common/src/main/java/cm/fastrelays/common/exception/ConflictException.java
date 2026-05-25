@@ -1,7 +1,12 @@
 package cm.fastrelays.common.exception;
 
-public class ConflictException extends RuntimeException {
-  public ConflictException(String errorMessage) {
-    super(errorMessage);
+public class ConflictException extends ApiException {
+
+  public ConflictException(String message) {
+    super(ErrorCode.CONFLICT, message);
+  }
+
+  public ConflictException(ErrorCode errorCode, String message) {
+    super(errorCode, message);
   }
 }

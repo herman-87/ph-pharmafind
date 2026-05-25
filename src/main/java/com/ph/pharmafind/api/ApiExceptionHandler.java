@@ -1,5 +1,6 @@
 package com.ph.pharmafind.api;
 
+import cm.fastrelays.common.exception.ApiException;
 import cm.fastrelays.common.exception.ConflictException;
 import cm.fastrelays.common.exception.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +21,7 @@ public class ApiExceptionHandler {
   @ExceptionHandler(ConflictException.class)
   ResponseEntity<ApiErrorResponse> handleConflict(
       ConflictException exception, HttpServletRequest request) {
-    return buildResponse(HttpStatus.CONFLICT, exception.getMessage(), request, Map.of());
+    return buildResponse(HttpStatus.CONFLICT, exception.getMessage(), request, Map.of(), exception);
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -30,39 +31,41 @@ public class ApiExceptionHandler {
     for (FieldError fieldError : exception.getBindingResult().getFieldErrors()) {
       violations.putIfAbsent(fieldError.getField(), fieldError.getDefaultMessage());
     }
-    return buildResponse(HttpStatus.BAD_REQUEST, "request validation failed", request, violations);
+    return buildResponse(HttpStatus.BAD_REQUEST, "request validation failed", request, violations, exception);
   }
 
   @ExceptionHandler(ConstraintViolationException.class)
   ResponseEntity<ApiErrorResponse> handleConstraintViolation(
       ConstraintViolationException exception, HttpServletRequest request) {
-    return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), request, Map.of());
+    return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), request, Map.of(), exception);
   }
 
   @ExceptionHandler(ResourceNotFoundException.class)
   ResponseEntity<ApiErrorResponse> handleResourceNotFound(
       ResourceNotFoundException exception, HttpServletRequest request) {
-    return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage(), request, Map.of());
+    return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage(), request, Map.of(), exception);
   }
 
   @ExceptionHandler(IllegalArgumentException.class)
   ResponseEntity<ApiErrorResponse> handleIllegalArgument(
       IllegalArgumentException exception, HttpServletRequest request) {
-    return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), request, Map.of());
+    return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), request, Map.of(), exception);
   }
 
   @ExceptionHandler(IllegalStateException.class)
   ResponseEntity<ApiErrorResponse> handleIllegalState(
       IllegalStateException exception, HttpServletRequest request) {
     return buildResponse(
-        HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage(), request, Map.of());
+        HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage(), request, Map.of(), exception);
   }
 
   private ResponseEntity<ApiErrorResponse> buildResponse(
       HttpStatus status,
       String message,
       HttpServletRequest request,
-      Map<String, String> violations) {
+      Map<String, String> violations,
+      Exception ex) {
+    var errorCode = extractErrorCode(ex);
     ApiErrorResponse body =
         new ApiErrorResponse(
             OffsetDateTime.now(),
@@ -70,7 +73,15 @@ public class ApiExceptionHandler {
             status.getReasonPhrase(),
             message,
             request.getRequestURI(),
+            errorCode,
             violations);
     return ResponseEntity.status(status).body(body);
+  }
+
+  private String extractErrorCode(Exception ex) {
+    if (ex instanceof ApiException apiEx) {
+      return apiEx.getErrorCode().code();
+    }
+    return null;
   }
 }

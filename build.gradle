@@ -88,7 +88,7 @@ dependencies {
 
 dependencyManagement {
 	imports {
-		mavenBom "org.springframework.boot:spring-boot-dependencies:3.4.5"  // ✅ ajouté
+		mavenBom "org.springframework.boot:spring-boot-dependencies:3.4.5"
 		mavenBom "org.springframework.cloud:spring-cloud-dependencies:2024.0.0"
 	}
 }
@@ -105,11 +105,11 @@ jib {
 		}
 	}
 	to {
-		image = 'herman87/ph_pharmafind'
+		image = 'herman87/pharmafind'
 		tags = ['latest', version.toString()]
 	}
 	container {
-		ports = ['9000']
+		ports = ['9001']
 		jvmFlags = [
 				'-XX:+UseContainerSupport',
 				'-XX:MaxRAMPercentage=75.0',

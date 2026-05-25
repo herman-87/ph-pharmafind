@@ -1,4 +1,4 @@
-package com.ph.user.api;
+package com.ph.pharmafind.api;
 
 import java.time.OffsetDateTime;
 import java.util.Map;
@@ -9,4 +9,5 @@ public record ApiErrorResponse(
     String error,
     String message,
     String path,
+    String errorCode,
     Map<String, String> violations) {}
