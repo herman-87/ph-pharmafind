@@ -1,5 +1,6 @@
 package cm.fastrelays.common.security;
 
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,48 +10,34 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 @Slf4j
 public class CurrentUser {
 
-  /**
-   * Returns preferred_username claim for the currently authenticated user. Falls back to
-   * Authentication.getName() if claim not present.
-   */
-  public static String getUserName() {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    if (auth == null) {
-      log.error("No Authentication found in SecurityContext");
-      throw new RuntimeException("No authenticated user in security context");
+  public static UUID getUserId() {
+    var jwt = getJwt();
+    var sub = jwt.getSubject();
+    if (sub == null || sub.isBlank()) {
+      log.error("JWT subject (sub) claim not found");
+      throw new RuntimeException("JWT subject (sub) claim not found");
     }
-
-    if (auth instanceof JwtAuthenticationToken jwtAuth) {
-      Jwt jwt = jwtAuth.getToken();
-      String preferred = jwt.getClaimAsString("preferred_username");
-      if (preferred != null && !preferred.isBlank()) {
-        return preferred;
-      }
-    }
-
-    String fallback = auth.getName();
-    if (fallback == null || fallback.isBlank()) {
-      log.error("The current username is null or blank");
-      throw new RuntimeException("The current username is null or blank");
-    }
-    return fallback;
+    return UUID.fromString(sub);
   }
 
-  /** Returns the subject (sub) claim for the currently authenticated user. */
-  public static String getUserId() {
+  public static String getUserName() {
+    return getJwt().getClaimAsString("username");
+  }
+
+  public static String getEmail() {
+    return getJwt().getClaimAsString("email");
+  }
+
+  private static Jwt getJwt() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     if (auth == null) {
       log.error("No Authentication found in SecurityContext");
       throw new RuntimeException("No authenticated user in security context");
     }
     if (auth instanceof JwtAuthenticationToken jwtAuth) {
-      Jwt jwt = jwtAuth.getToken();
-      String sub = jwt.getClaimAsString("sub");
-      if (sub != null && !sub.isBlank()) {
-        return sub;
-      }
+      return jwtAuth.getToken();
     }
-    log.error("JWT subject (sub) claim not found for current user");
-    throw new RuntimeException("JWT subject (sub) claim not found for current user");
+    log.error("Authentication is not a JwtAuthenticationToken");
+    throw new RuntimeException("Authentication is not a JwtAuthenticationToken");
   }
 }
