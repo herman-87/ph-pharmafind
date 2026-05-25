@@ -149,10 +149,6 @@ Redirects to: `{frontendLoginUrl}?error={errorMessage}`
 - Temporary IP bans after too many failed attempts
 - Automatic cleanup of old records
 
-### CORS Configuration
-- Configurable allowed origins from `AppSecurityProperties`
-- Supports credentials (cookies, authorization headers)
-
 ## Token Usage
 
 ### Access Token
@@ -188,7 +184,6 @@ Key configuration properties:
 - Token expiration times
 - RSA key pair for JWT signing
 - Frontend redirect URLs for OAuth2
-- Allowed CORS origins
 - Brute force protection thresholds
 
 ## Error Handling

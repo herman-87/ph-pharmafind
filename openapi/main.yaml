@@ -1,16 +1,13 @@
 openapi: 3.0.3
 info:
-  title: Pharmafind Authorization Server API
-  version: 2.0.0
-  description: >
-    OpenAPI contract for the Pharmafind custom JWT Authorization Server.
-    Provides local registration, login, token refresh, logout and Google OAuth2
-    authentication endpoints.
+  title: Pharmafind API — Pharmacy Service
+  version: 1.0.0
 servers:
   - url: http://localhost:9000
+
 tags:
-  - name: Authentication
-    description: Local account authentication and token management
+  - name: Pharmacy
+    description: Pharmacy management
 components:
   securitySchemes:
     BearerAuth:
@@ -18,102 +15,6 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
-    RegisterRequestDTO:
-      type: object
-      required:
-        - username
-        - email
-        - password
-      properties:
-        username:
-          type: string
-          minLength: 4
-          maxLength: 120
-          pattern: '^[a-zA-Z0-9._-]+$'
-          example: john.doe
-        email:
-          type: string
-          format: email
-          maxLength: 190
-          example: john@example.com
-        password:
-          type: string
-          format: password
-          example: StrongPassword123!
-    RegisterResponseDTO:
-      type: object
-      required:
-        - id
-      properties:
-        id:
-          type: string
-          format: uuid
-    LoginRequestDTO:
-      type: object
-      required:
-        - username
-        - password
-      properties:
-        username:
-          type: string
-          example: john.doe
-        password:
-          type: string
-          format: password
-          example: StrongPassword123!
-    RefreshRequestDTO:
-      type: object
-      required:
-        - refreshToken
-      properties:
-        refreshToken:
-          type: string
-          description: The refresh token issued during login
-    LogoutRequestDTO:
-      type: object
-      required:
-        - refreshToken
-      properties:
-        refreshToken:
-          type: string
-          description: The refresh token to revoke
-    TokenResponseDTO:
-      type: object
-      properties:
-        access_token:
-          type: string
-        refresh_token:
-          type: string
-        token_type:
-          type: string
-          example: Bearer
-        expires_in:
-          type: integer
-          format: int64
-    UserInfoResponseDTO:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        username:
-          type: string
-        email:
-          type: string
-          format: email
-        provider:
-          type: string
-        roles:
-          type: array
-          items:
-            type: string
-        email_verified:
-          type: boolean
-        enabled:
-          type: boolean
-        created_at:
-          type: string
-          format: date-time
     ApiErrorResponseDTO:
       type: object
       properties:
@@ -132,156 +33,460 @@ components:
           type: object
           additionalProperties:
             type: string
+    PharmacyIdResponseDTO:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: string
+          format: uuid
+    OpeningHourDTO:
+      type: object
+      properties:
+        dayOfWeek:
+          type: string
+          enum: [MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY,SUNDAY]
+        openTime:
+          type: string
+          example: "08:00"
+        closeTime:
+          type: string
+          example: "20:00"
+        isClosed:
+          type: boolean
+    DutyScheduleDTO:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        startTime:
+          type: string
+          example: "20:00"
+        endTime:
+          type: string
+          example: "08:00"
+    PaymentMethodDTO:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: [CASH, MTN_MOMO, ORANGE_MONEY, VISA, MASTERCARD]
+        accountNumber:
+          type: string
+          example: "+237677000000"
+    SocialLinkDTO:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [FACEBOOK, INSTAGRAM, WHATSAPP, WEBSITE]
+        value:
+          type: string
+    CreatePharmacyRequestDTO:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - phone
+        - password
+        - confirmPassword
+        - name
+        - city
+        - district
+        - fullAddress
+        - latitude
+        - longitude
+        - openingHours
+        - paymentMethods
+      properties:
+        firstName:
+          type: string
+          minLength: 2
+          maxLength: 60
+        lastName:
+          type: string
+          minLength: 2
+          maxLength: 60
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          example: "+237677000000"
+        password:
+          type: string
+          format: password
+          minLength: 8
+        confirmPassword:
+          type: string
+          format: password
+        name:
+          type: string
+          minLength: 2
+          maxLength: 120
+        registrationNumber:
+          type: string
+        taxId:
+          type: string
+        city:
+          type: string
+        district:
+          type: string
+        locality:
+          type: string
+        fullAddress:
+          type: string
+          maxLength: 255
+        latitude:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+        is24h:
+          type: boolean
+          default: false
+        deliveryAvailable:
+          type: boolean
+          default: false
+        deliveryRadiusKm:
+          type: integer
+          minimum: 1
+        openingHours:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/OpeningHourDTO'
+        dutySchedules:
+          type: array
+          items:
+            $ref: '#/components/schemas/DutyScheduleDTO'
+        paymentMethods:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/PaymentMethodDTO'
+        socialLinks:
+          type: array
+          items:
+            $ref: '#/components/schemas/SocialLinkDTO'
+    UpdatePharmacyRequestDTO:
+      type: object
+      properties:
+        name:
+          type: string
+        city:
+          type: string
+        district:
+          type: string
+        locality:
+          type: string
+        fullAddress:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        is24h:
+          type: boolean
+        deliveryAvailable:
+          type: boolean
+        deliveryRadiusKm:
+          type: integer
+        openingHours:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpeningHourDTO'
+        dutySchedules:
+          type: array
+          items:
+            $ref: '#/components/schemas/DutyScheduleDTO'
+        paymentMethods:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentMethodDTO'
+        socialLinks:
+          type: array
+          items:
+            $ref: '#/components/schemas/SocialLinkDTO'
+    PharmacyResponseDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        status:
+          type: string
+          enum: [PENDING_VERIFICATION, ACTIVE, SUSPENDED, REJECTED]
+        city:
+          type: string
+        district:
+          type: string
+        locality:
+          type: string
+        fullAddress:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        is24h:
+          type: boolean
+        deliveryAvailable:
+          type: boolean
+        deliveryRadiusKm:
+          type: integer
+        logoUrl:
+          type: string
+        openingHours:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpeningHourDTO'
+        dutySchedules:
+          type: array
+          items:
+            $ref: '#/components/schemas/DutyScheduleDTO'
+        paymentMethods:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentMethodDTO'
+        socialLinks:
+          type: array
+          items:
+            $ref: '#/components/schemas/SocialLinkDTO'
+        createdAt:
+          type: string
+          format: date-time
+    PharmacyPageResponseDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/PharmacyResponseDTO'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+
 paths:
-  /users:
-    get:
-      tags:
-        - Authentication
-      operationId: getAllUsers
-      summary: List all users
-      description: Returns a non-paginated list of all registered users.
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Users retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/UserInfoResponseDTO'
-        '401':
-          description: Unauthorized - missing or invalid token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponseDTO'
-  /user/info:
-    get:
-      tags:
-        - Authentication
-      operationId: getCurrentUserInfo
-      summary: Get current user information
-      description: Returns the authenticated user's profile information based on the JWT token.
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: User information retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserInfoResponseDTO'
-        '401':
-          description: Unauthorized - missing or invalid token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponseDTO'
-        '404':
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponseDTO'
-  /api/auth/register:
+
+  /api/pharmacies:
     post:
-      tags:
-        - Authentication
-      operationId: register
-      summary: Register a new local user account
-      description: Creates a local account stored by the authorization server.
+      tags: [Pharmacy]
+      operationId: createPharmacy
+      summary: Créer une pharmacie et son compte propriétaire
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RegisterRequestDTO'
+              $ref: '#/components/schemas/CreatePharmacyRequestDTO'
       responses:
         '201':
-          description: User created
+          description: Pharmacie créée — retourne uniquement l'id
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RegisterResponseDTO'
+                $ref: '#/components/schemas/PharmacyIdResponseDTO'
         '400':
-          description: Validation failure
+          description: Erreur de validation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponseDTO'
         '409':
-          description: Duplicate username or email
+          description: Email, téléphone ou nom de pharmacie déjà utilisé
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponseDTO'
-  /api/auth/login:
-    post:
-      tags:
-        - Authentication
-      operationId: login
-      summary: Authenticate with username and password
-      description: Validates credentials and returns JWT access and refresh tokens.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LoginRequestDTO'
+
+    get:
+      tags: [Pharmacy]
+      operationId: listPharmacies
+      summary: Lister les pharmacies actives
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: city
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
       responses:
         '200':
-          description: Authentication successful
+          description: Liste paginée
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokenResponseDTO'
-        '401':
-          description: Invalid credentials
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponseDTO'
-  /api/auth/refresh:
-    post:
-      tags:
-        - Authentication
-      operationId: refreshToken
-      summary: Refresh an access token
-      description: Exchanges a valid refresh token for a new access token and refresh token.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RefreshRequestDTO'
+                $ref: '#/components/schemas/PharmacyPageResponseDTO'
+
+  /api/pharmacies/{id}:
+    get:
+      tags: [Pharmacy]
+      operationId: getPharmacy
+      summary: Détails d'une pharmacie
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
       responses:
         '200':
-          description: Tokens refreshed successfully
+          description: Détails de la pharmacie
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokenResponseDTO'
-        '400':
-          description: Invalid or expired refresh token
+                $ref: '#/components/schemas/PharmacyResponseDTO'
+        '404':
+          description: Pharmacie introuvable
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponseDTO'
-  /api/auth/logout:
-    post:
-      tags:
-        - Authentication
-      operationId: logout
-      summary: Revoke a refresh token
-      description: Invalidates the given refresh token.
+
+    put:
+      tags: [Pharmacy]
+      operationId: updatePharmacy
+      summary: Modifier une pharmacie
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LogoutRequestDTO'
+              $ref: '#/components/schemas/UpdatePharmacyRequestDTO'
       responses:
         '204':
-          description: Token revoked successfully
+          description: Mise à jour effectuée — aucun contenu retourné
+        '400':
+          description: Erreur de validation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
+        '401':
+          description: Non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
+        '403':
+          description: Accès refusé — pas propriétaire
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
+        '404':
+          description: Pharmacie introuvable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
+
+    delete:
+      tags: [Pharmacy]
+      operationId: deletePharmacy
+      summary: Supprimer une pharmacie
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Suppression effectuée — aucun contenu retourné
+        '401':
+          description: Non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
+        '403':
+          description: Accès refusé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
+        '404':
+          description: Pharmacie introuvable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
+
+  /api/pharmacies/{id}/verify:
+    post:
+      tags: [Pharmacy]
+      operationId: verifyPharmacy
+      summary: Vérifier le compte pharmacie via token email
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Compte vérifié avec succès
+        '400':
+          description: Token invalide ou expiré
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
+        '404':
+          description: Pharmacie introuvable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'

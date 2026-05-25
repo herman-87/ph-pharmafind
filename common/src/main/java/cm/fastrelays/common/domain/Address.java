@@ -14,6 +14,7 @@ import lombok.experimental.SuperBuilder;
 public class Address {
   private String street;
   private String city;
+  private String district;
   private String country;
   private String postalCode;
 }
