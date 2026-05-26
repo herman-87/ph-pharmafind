@@ -21,7 +21,6 @@
             </column>
         </createTable>
     </changeSet>
-
     <changeSet id="002-create-pharmacy-table" author="pharmafind">
         <createTable tableName="t_pharmacy">
             <column name="c_id" type="UUID" defaultValueComputed="gen_random_uuid()">
@@ -59,7 +58,6 @@
             </column>
         </createTable>
     </changeSet>
-
     <changeSet id="003-add-pharmacy-owner-foreign-key" author="pharmafind">
         <addForeignKeyConstraint
             baseTableName="t_pharmacy"
@@ -68,5 +66,11 @@
             referencedColumnNames="c_id"
             constraintName="fk_pharmacy_owner"/>
     </changeSet>
-
+    <changeSet id="004-add-owner-user-id" author="pharmafind">
+        <addColumn tableName="t_owner">
+            <column name="c_user_id" type="UUID">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

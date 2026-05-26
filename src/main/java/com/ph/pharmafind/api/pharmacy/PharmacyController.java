@@ -2,8 +2,8 @@ package com.ph.pharmafind.api.pharmacy;
 
 import com.ph.pharmafind.application.pharmacy.PharmacyApplicationService;
 import com.ph.pharmafind.application.pharmacy.dto.PharmacyCreateRequest;
+import com.ph.pharmafind.application.pharmacy.dto.PharmacyResponse;
 import com.ph.pharmafind.application.pharmacy.dto.PharmacyUpdateRequest;
-import com.ph.pharmafind.domain.pharmacy.Pharmacy;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,25 +33,25 @@ public class PharmacyController {
   }
 
   @PostMapping
-  public ResponseEntity<Pharmacy> createPharmacy(
+  public ResponseEntity<PharmacyResponse> createPharmacy(
       @Valid @RequestBody PharmacyCreateRequest request) {
-    Pharmacy pharmacy = pharmacyApplicationService.createPharmacy(request);
+    PharmacyResponse pharmacy = pharmacyApplicationService.createPharmacy(request);
     return ResponseEntity.status(HttpStatus.CREATED).body(pharmacy);
   }
 
   @GetMapping
-  public ResponseEntity<Page<Pharmacy>> listPharmacies(
+  public ResponseEntity<Page<PharmacyResponse>> listPharmacies(
       @PageableDefault(size = 20) Pageable pageable,
       @RequestParam(required = false) String city,
       @RequestParam(required = false) String search) {
-    Page<Pharmacy> pharmacies =
+    Page<PharmacyResponse> pharmacies =
         pharmacyApplicationService.listPharmacies(pageable, city, search);
     return ResponseEntity.ok(pharmacies);
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Pharmacy> getPharmacy(@PathVariable UUID id) {
-    Pharmacy pharmacy = pharmacyApplicationService.getPharmacy(id);
+  public ResponseEntity<PharmacyResponse> getPharmacy(@PathVariable UUID id) {
+    PharmacyResponse pharmacy = pharmacyApplicationService.getPharmacy(id);
     return ResponseEntity.ok(pharmacy);
   }
 

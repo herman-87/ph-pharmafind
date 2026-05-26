@@ -1,7 +1,10 @@
 package com.ph.pharmafind.application.pharmacy;
 
+import cm.fastrelays.common.security.CurrentUser;
 import com.ph.pharmafind.application.pharmacy.dto.PharmacyCreateRequest;
+import com.ph.pharmafind.application.pharmacy.dto.PharmacyResponse;
 import com.ph.pharmafind.application.pharmacy.dto.PharmacyUpdateRequest;
+import com.ph.pharmafind.application.pharmacy.mapper.PharmacyMapper;
 import com.ph.pharmafind.domain.pharmacy.Owner;
 import com.ph.pharmafind.domain.pharmacy.Pharmacy;
 import com.ph.pharmafind.infrastructure.persistence.repository.OwnerRepository;
@@ -18,15 +21,19 @@ public class PharmacyApplicationService {
 
   private final OwnerRepository ownerRepository;
   private final PharmacyRepository pharmacyRepository;
+  private final PharmacyMapper pharmacyMapper;
 
   public PharmacyApplicationService(
-      OwnerRepository ownerRepository, PharmacyRepository pharmacyRepository) {
+      OwnerRepository ownerRepository,
+      PharmacyRepository pharmacyRepository,
+      PharmacyMapper pharmacyMapper) {
     this.ownerRepository = ownerRepository;
     this.pharmacyRepository = pharmacyRepository;
+    this.pharmacyMapper = pharmacyMapper;
   }
 
   @Transactional
-  public Pharmacy createPharmacy(PharmacyCreateRequest request) {
+  public PharmacyResponse createPharmacy(PharmacyCreateRequest request) {
     if (!request.password().equals(request.confirmPassword())) {
       throw new IllegalArgumentException("Password confirmation does not match");
     }
@@ -42,8 +49,10 @@ public class PharmacyApplicationService {
     }
 
     // Créer le propriétaire
-    String username = generateUsername(request.firstName(), request.lastName());
-    Owner owner = Owner.builder().username(username).build();
+    Owner owner = Owner.builder()
+        .username(CurrentUser.getUserName())
+        .userId(CurrentUser.getUserId())
+        .build();
     owner = ownerRepository.save(owner);
 
     // Créer la pharmacie
@@ -63,29 +72,33 @@ public class PharmacyApplicationService {
             .owner(owner)
             .build();
 
-    return pharmacyRepository.save(pharmacy);
+    return pharmacyMapper.toResponse(pharmacyRepository.save(pharmacy));
   }
 
   @Transactional(readOnly = true)
-  public Page<Pharmacy> listPharmacies(Pageable pageable, String city, String search) {
+  public Page<PharmacyResponse> listPharmacies(Pageable pageable, String city, String search) {
     if (city != null && !city.isEmpty()) {
-      return pharmacyRepository.findByCityContainingIgnoreCase(city, pageable);
+      return pharmacyRepository.findByCityContainingIgnoreCase(city, pageable)
+          .map(pharmacyMapper::toResponse);
     }
     if (search != null && !search.isEmpty()) {
       return pharmacyRepository.findByNameContainingIgnoreCaseOrCityContainingIgnoreCase(
-          search, search, pageable);
+              search, search, pageable)
+          .map(pharmacyMapper::toResponse);
     }
-    return pharmacyRepository.findAll(pageable);
+    return pharmacyRepository.findAll(pageable).map(pharmacyMapper::toResponse);
   }
 
   @Transactional(readOnly = true)
-  public Pharmacy getPharmacy(UUID id) {
-    return pharmacyRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Pharmacy not found"));
+  public PharmacyResponse getPharmacy(UUID id) {
+    return pharmacyRepository.findById(id)
+        .map(pharmacyMapper::toResponse)
+        .orElseThrow(() -> new IllegalArgumentException("Pharmacy not found"));
   }
 
   @Transactional
   public void updatePharmacy(UUID id, PharmacyUpdateRequest request) {
-    Pharmacy pharmacy = getPharmacy(id);
+    Pharmacy pharmacy = getPharmacyById(id);
 
     if (request.name() != null) {
       pharmacy.setName(request.name());
@@ -108,25 +121,17 @@ public class PharmacyApplicationService {
 
   @Transactional
   public void deletePharmacy(UUID id) {
-    Pharmacy pharmacy = getPharmacy(id);
+    Pharmacy pharmacy = getPharmacyById(id);
     pharmacyRepository.delete(pharmacy);
   }
 
   @Transactional
   public void verifyPharmacy(UUID id, String token) {
-    // TODO: Implement token verification logic
-    // For now, just check if pharmacy exists
-    getPharmacy(id);
-    // In a real implementation, you would validate the token and update pharmacy status
+    getPharmacyById(id);
   }
 
-  private String generateUsername(String firstName, String lastName) {
-    String base = (firstName + "." + lastName).toLowerCase().replaceAll("\\s+", "");
-    String username = base;
-    int counter = 1;
-    while (ownerRepository.existsByUsername(username)) {
-      username = base + counter++;
-    }
-    return username;
+  private Pharmacy getPharmacyById(UUID id) {
+    return pharmacyRepository.findById(id)
+        .orElseThrow(() -> new IllegalArgumentException("Pharmacy not found"));
   }
 }

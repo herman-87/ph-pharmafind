@@ -33,8 +33,6 @@ public class SecurityConfig {
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/pharmacies/**")
                     .permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/pharmacies")
-                    .permitAll()
                     .anyRequest()
                     .authenticated())
         .csrf(AbstractHttpConfigurer::disable)
