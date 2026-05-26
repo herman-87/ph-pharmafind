@@ -6,7 +6,7 @@ import java.util.List;
 public record PharmacyUpdateRequest(
     @Size(min = 2, max = 200) String name,
     @Size(min = 2, max = 100) String city,
-    @Size(min = 2, max = 100) String quarter,
+    @Size(min = 2, max = 100) String district,
     @Size(min = 2, max = 100) String locality,
     @Size(min = 5, max = 300) String fullAddress,
     Double latitude,
@@ -31,8 +31,14 @@ public record PharmacyUpdateRequest(
       String startTime,
       String endTime) {}
 
-  public enum PaymentMethodDTO {
-    CASH, MTN_MOMO, ORANGE_MONEY, VISA, MASTERCARD
+  public record PaymentMethodDTO(PaymentType type, String accountNumber) {}
+
+  public enum PaymentType {
+    CASH,
+    MTN_MOMO,
+    ORANGE_MONEY,
+    VISA,
+    MASTERCARD
   }
 
   public enum SocialLinkTypeDTO {

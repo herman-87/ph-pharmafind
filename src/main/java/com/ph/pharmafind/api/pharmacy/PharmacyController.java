@@ -1,76 +1,74 @@
 package com.ph.pharmafind.api.pharmacy;
 
 import com.ph.pharmafind.application.pharmacy.PharmacyApplicationService;
-import com.ph.pharmafind.application.pharmacy.dto.PharmacyCreateRequest;
 import com.ph.pharmafind.application.pharmacy.dto.PharmacyResponse;
-import com.ph.pharmafind.application.pharmacy.dto.PharmacyUpdateRequest;
+import com.ph.pharmafind.application.pharmacy.mapper.PharmacyMapper;
+import com.ph.pharmafind.generated.api.PharmacyApi;
+import com.ph.pharmafind.generated.model.CreatePharmacyRequestDTO;
+import com.ph.pharmafind.generated.model.PharmacyIdResponseDTO;
+import com.ph.pharmafind.generated.model.PharmacyPageResponseDTO;
+import com.ph.pharmafind.generated.model.PharmacyResponseDTO;
+import com.ph.pharmafind.generated.model.UpdatePharmacyRequestDTO;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/pharmacies")
-public class PharmacyController {
+public class PharmacyController implements PharmacyApi {
 
   private final PharmacyApplicationService pharmacyApplicationService;
+  private final PharmacyMapper pharmacyMapper;
 
-  public PharmacyController(PharmacyApplicationService pharmacyApplicationService) {
+  public PharmacyController(
+      PharmacyApplicationService pharmacyApplicationService, PharmacyMapper pharmacyMapper) {
     this.pharmacyApplicationService = pharmacyApplicationService;
+    this.pharmacyMapper = pharmacyMapper;
   }
 
-  @PostMapping
-  public ResponseEntity<PharmacyResponse> createPharmacy(
-      @Valid @RequestBody PharmacyCreateRequest request) {
-    PharmacyResponse pharmacy = pharmacyApplicationService.createPharmacy(request);
-    return ResponseEntity.status(HttpStatus.CREATED).body(pharmacy);
+  @Override
+  public ResponseEntity<PharmacyIdResponseDTO> createPharmacy(
+      @Valid CreatePharmacyRequestDTO createPharmacyRequestDTO) {
+    var request = pharmacyMapper.toCreateRequest(createPharmacyRequestDTO);
+    var pharmacyId = pharmacyApplicationService.createPharmacy(request);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(pharmacyMapper.toPharmacyIdResponseDTO(pharmacyId));
   }
 
-  @GetMapping
-  public ResponseEntity<Page<PharmacyResponse>> listPharmacies(
-      @PageableDefault(size = 20) Pageable pageable,
-      @RequestParam(required = false) String city,
-      @RequestParam(required = false) String search) {
+  @Override
+  public ResponseEntity<PharmacyPageResponseDTO> listPharmacies(
+      Integer page, Integer size, String city, String search) {
+    var pageable = org.springframework.data.domain.PageRequest.of(page, size);
     Page<PharmacyResponse> pharmacies =
         pharmacyApplicationService.listPharmacies(pageable, city, search);
-    return ResponseEntity.ok(pharmacies);
+    return ResponseEntity.ok(pharmacyMapper.toPharmacyPageResponseDTO(pharmacies));
   }
 
-  @GetMapping("/{id}")
-  public ResponseEntity<PharmacyResponse> getPharmacy(@PathVariable UUID id) {
+  @Override
+  public ResponseEntity<PharmacyResponseDTO> getPharmacy(UUID id) {
     PharmacyResponse pharmacy = pharmacyApplicationService.getPharmacy(id);
-    return ResponseEntity.ok(pharmacy);
+    return ResponseEntity.ok(pharmacyMapper.toPharmacyResponseDTO(pharmacy));
   }
 
-  @PutMapping("/{id}")
+  @Override
   public ResponseEntity<Void> updatePharmacy(
-      @PathVariable UUID id, @Valid @RequestBody PharmacyUpdateRequest request) {
+      UUID id, @Valid UpdatePharmacyRequestDTO updatePharmacyRequestDTO) {
+    var request = pharmacyMapper.toUpdateRequest(updatePharmacyRequestDTO);
     pharmacyApplicationService.updatePharmacy(id, request);
     return ResponseEntity.noContent().build();
   }
 
-  @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deletePharmacy(@PathVariable UUID id) {
+  @Override
+  public ResponseEntity<Void> deletePharmacy(UUID id) {
     pharmacyApplicationService.deletePharmacy(id);
     return ResponseEntity.noContent().build();
   }
 
-  @PostMapping("/{id}/verify")
-  public ResponseEntity<Void> verifyPharmacy(
-      @PathVariable UUID id, @RequestParam String token) {
+  @Override
+  public ResponseEntity<Void> verifyPharmacy(UUID id, String token) {
     pharmacyApplicationService.verifyPharmacy(id, token);
     return ResponseEntity.noContent().build();
   }

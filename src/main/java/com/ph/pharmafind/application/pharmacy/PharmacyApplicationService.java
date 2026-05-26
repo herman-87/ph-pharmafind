@@ -1,6 +1,10 @@
 package com.ph.pharmafind.application.pharmacy;
 
 import cm.fastrelays.common.security.CurrentUser;
+import cm.fastrelays.common.exception.BadRequestException;
+import cm.fastrelays.common.exception.ConflictException;
+import cm.fastrelays.common.exception.ResourceNotFoundException;
+import com.ph.pharmafind.ErrorCode;
 import com.ph.pharmafind.application.pharmacy.dto.PharmacyCreateRequest;
 import com.ph.pharmafind.application.pharmacy.dto.PharmacyResponse;
 import com.ph.pharmafind.application.pharmacy.dto.PharmacyUpdateRequest;
@@ -33,29 +37,25 @@ public class PharmacyApplicationService {
   }
 
   @Transactional
-  public PharmacyResponse createPharmacy(PharmacyCreateRequest request) {
+  public UUID createPharmacy(PharmacyCreateRequest request) {
     if (!request.password().equals(request.confirmPassword())) {
-      throw new IllegalArgumentException("Password confirmation does not match");
+      throw new BadRequestException(ErrorCode.PASSWORD_MISMATCH, "Password confirmation does not match");
     }
 
-    // Vérifier l'unicité de l'email
     if (pharmacyRepository.existsByEmail(request.email())) {
-      throw new IllegalArgumentException("Email already exists");
+      throw new ConflictException(ErrorCode.EMAIL_ALREADY_EXISTS, "Email already exists");
     }
 
-    // Vérifier l'unicité du téléphone
     if (pharmacyRepository.existsByPhone(request.phone())) {
-      throw new IllegalArgumentException("Phone already exists");
+      throw new ConflictException(ErrorCode.PHONE_ALREADY_EXISTS, "Phone already exists");
     }
 
-    // Créer le propriétaire
     Owner owner = Owner.builder()
         .username(CurrentUser.getUserName())
         .userId(CurrentUser.getUserId())
         .build();
     owner = ownerRepository.save(owner);
 
-    // Créer la pharmacie
     String gpsCoordinates = request.latitude() + "," + request.longitude();
     String quarter = request.locality() != null && !request.locality().isBlank()
         ? request.locality()
@@ -72,7 +72,7 @@ public class PharmacyApplicationService {
             .owner(owner)
             .build();
 
-    return pharmacyMapper.toResponse(pharmacyRepository.save(pharmacy));
+    return pharmacyRepository.save(pharmacy).getId();
   }
 
   @Transactional(readOnly = true)
@@ -93,7 +93,8 @@ public class PharmacyApplicationService {
   public PharmacyResponse getPharmacy(UUID id) {
     return pharmacyRepository.findById(id)
         .map(pharmacyMapper::toResponse)
-        .orElseThrow(() -> new IllegalArgumentException("Pharmacy not found"));
+        .orElseThrow(
+            () -> new ResourceNotFoundException(ErrorCode.PHARMACY_NOT_FOUND, "Pharmacy not found"));
   }
 
   @Transactional
@@ -106,8 +107,10 @@ public class PharmacyApplicationService {
     if (request.city() != null) {
       pharmacy.setCity(request.city());
     }
-    if (request.quarter() != null) {
-      pharmacy.setQuarter(request.quarter());
+    if (request.locality() != null) {
+      pharmacy.setQuarter(request.locality());
+    } else if (request.district() != null) {
+      pharmacy.setQuarter(request.district());
     }
     if (request.fullAddress() != null) {
       pharmacy.setAddress(request.fullAddress());
@@ -132,6 +135,7 @@ public class PharmacyApplicationService {
 
   private Pharmacy getPharmacyById(UUID id) {
     return pharmacyRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("Pharmacy not found"));
+        .orElseThrow(
+            () -> new ResourceNotFoundException(ErrorCode.PHARMACY_NOT_FOUND, "Pharmacy not found"));
   }
 }
