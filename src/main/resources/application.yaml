@@ -66,8 +66,8 @@ management:
 
 logging:
   level:
-    org.springframework.security: INFO
-    com.ph.pharmafind: INFO
+    org.springframework.security: DEBUG
+    com.ph.pharmafind: DEBUG
 
 app:
   security:

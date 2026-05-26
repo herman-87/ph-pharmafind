@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.ph.pharmafind.configuration.properties.AppSecurityProperties;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -20,17 +20,10 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final AppSecurityProperties appSecurityProperties;
-  private final JwtDecoder jwtDecoder;
-
-  public SecurityConfig(
-      AppSecurityProperties appSecurityProperties,
-      JwtDecoder jwtDecoder) {
-    this.appSecurityProperties = appSecurityProperties;
-    this.jwtDecoder = jwtDecoder;
-  }
+    private final JwtDecoder jwtDecoder;
 
   @Bean
   SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

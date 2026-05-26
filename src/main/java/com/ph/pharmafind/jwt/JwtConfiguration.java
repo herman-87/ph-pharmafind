@@ -1,8 +1,10 @@
 package com.ph.pharmafind.jwt;
 
+import cm.fastrelays.common.exception.InternalServerError;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.JWKSet;
-import java.net.URL;
+
+import java.net.URI;
 import java.security.interfaces.RSAPublicKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,18 +28,18 @@ public class JwtConfiguration {
   JwtDecoder jwtDecoder() {
     try {
       log.info("Fetching JWKS from {}", jwtProperties.jwkSetUri());
-      var jwkSet = JWKSet.load(new URL(jwtProperties.jwkSetUri()));
+      var jwkSet = JWKSet.load(URI.create(jwtProperties.jwkSetUri()).toURL());
       var rsaJWK = jwkSet.getKeys().stream()
-          .filter(RSAKey.class::isInstance)
-          .map(RSAKey.class::cast)
-          .findFirst()
-          .orElseThrow(() -> new RuntimeException("No RSA key found in JWKS"));
+              .filter(RSAKey.class::isInstance)
+              .map(RSAKey.class::cast)
+              .findFirst()
+              .orElseThrow(() -> new RuntimeException("No RSA key found in JWKS"));
       var publicKey = rsaJWK.toPublicKey();
-      log.info("JWKS loaded successfully — creating JwtDecoder");
+      log.info("JWKS loaded successfully → creating JwtDecoder");
       return NimbusJwtDecoder.withPublicKey((RSAPublicKey) publicKey).build();
     } catch (Exception e) {
-      throw new RuntimeException(
-          "Failed to load JWKS at startup from " + jwtProperties.jwkSetUri(), e);
+      throw new InternalServerError(
+              "Failed to load JWKS at startup from " + jwtProperties.jwkSetUri() + " " + e);
     }
   }
 }

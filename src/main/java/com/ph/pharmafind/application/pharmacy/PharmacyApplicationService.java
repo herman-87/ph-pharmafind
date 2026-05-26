@@ -27,6 +27,10 @@ public class PharmacyApplicationService {
 
   @Transactional
   public Pharmacy createPharmacy(PharmacyCreateRequest request) {
+    if (!request.password().equals(request.confirmPassword())) {
+      throw new IllegalArgumentException("Password confirmation does not match");
+    }
+
     // Vérifier l'unicité de l'email
     if (pharmacyRepository.existsByEmail(request.email())) {
       throw new IllegalArgumentException("Email already exists");
@@ -38,20 +42,23 @@ public class PharmacyApplicationService {
     }
 
     // Créer le propriétaire
-    String username = generateUsername(request.ownerFirstName(), request.ownerLastName());
+    String username = generateUsername(request.firstName(), request.lastName());
     Owner owner = Owner.builder().username(username).build();
     owner = ownerRepository.save(owner);
 
     // Créer la pharmacie
-    String gpsCoordinates = request.gpsLatitude() + "," + request.gpsLongitude();
+    String gpsCoordinates = request.latitude() + "," + request.longitude();
+    String quarter = request.locality() != null && !request.locality().isBlank()
+        ? request.locality()
+        : request.district();
     Pharmacy pharmacy =
         Pharmacy.builder()
-            .name(request.pharmacyName())
+            .name(request.name())
             .email(request.email())
             .phone(request.phone())
             .city(request.city())
-            .quarter(request.quarter())
-            .address(request.address())
+            .quarter(quarter)
+            .address(request.fullAddress())
             .gpsCoordinates(gpsCoordinates)
             .owner(owner)
             .build();
