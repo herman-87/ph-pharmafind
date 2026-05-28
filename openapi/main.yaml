@@ -232,6 +232,9 @@ components:
         status:
           type: string
           enum: [PENDING_VERIFICATION, ACTIVE, SUSPENDED, REJECTED]
+        isCertified:
+          type: boolean
+          default: false
         city:
           type: string
         district:
@@ -287,6 +290,21 @@ components:
           format: int64
         totalPages:
           type: integer
+    CreateCertificationRequestDTO:
+      type: object
+      required: [documentUrl]
+      properties:
+        documentUrl:
+          type: string
+        notes:
+          type: string
+    CertificationRequestIdResponseDTO:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: string
+          format: uuid
 paths:
   /api/pharmacies:
     post:
@@ -476,6 +494,57 @@ paths:
           description: Account verified successfully
         '400':
           description: "40006 — Invalid token, 40007 — Token expired"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
+        '404':
+          description: "40401 — Pharmacy not found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
+  /api/pharmacies/{id}/certification-requests:
+    post:
+      tags: [Pharmacy]
+      operationId: createCertificationRequest
+      summary: Create a certification request for a pharmacy
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCertificationRequestDTO'
+      responses:
+        '201':
+          description: Certification request created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificationRequestIdResponseDTO'
+        '400':
+          description: "40001 — Validation error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
+        '401':
+          description: "40101 — Not authenticated, 40102 — Token expired, 40103 — Token invalid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
+        '403':
+          description: "40301 — Access denied"
           content:
             application/json:
               schema:
