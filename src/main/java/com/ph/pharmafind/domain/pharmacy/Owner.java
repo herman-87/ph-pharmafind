@@ -26,4 +26,11 @@ public class Owner extends UuidBaseEntity {
 
   @Column(name = "c_user_id", nullable = false, unique = true)
   private UUID userId;
+
+  public static Owner create(String username, UUID userId) {
+    return Owner.builder()
+        .username(username)
+        .userId(userId)
+        .build();
+  }
 }

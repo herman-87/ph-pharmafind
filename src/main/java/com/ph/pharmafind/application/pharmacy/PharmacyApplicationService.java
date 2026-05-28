@@ -50,27 +50,25 @@ public class PharmacyApplicationService {
       throw new ConflictException(ErrorCode.PHONE_ALREADY_EXISTS, "Phone already exists");
     }
 
-    Owner owner = Owner.builder()
-        .username(CurrentUser.getUserName())
-        .userId(CurrentUser.getUserId())
-        .build();
+    Owner owner = Owner.create(CurrentUser.getUserName(), CurrentUser.getUserId());
     owner = ownerRepository.save(owner);
 
     String gpsCoordinates = request.latitude() + "," + request.longitude();
-    String quarter = request.locality() != null && !request.locality().isBlank()
-        ? request.locality()
-        : request.district();
+    String quarter =
+        request.locality() != null && !request.locality().isBlank()
+            ? request.locality()
+            : request.district();
+
     Pharmacy pharmacy =
-        Pharmacy.builder()
-            .name(request.name())
-            .email(request.email())
-            .phone(request.phone())
-            .city(request.city())
-            .quarter(quarter)
-            .address(request.fullAddress())
-            .gpsCoordinates(gpsCoordinates)
-            .owner(owner)
-            .build();
+        Pharmacy.create(
+            request.name(),
+            request.email(),
+            request.phone(),
+            request.city(),
+            quarter,
+            request.fullAddress(),
+            gpsCoordinates,
+            owner);
 
     return pharmacyRepository.save(pharmacy).getId();
   }

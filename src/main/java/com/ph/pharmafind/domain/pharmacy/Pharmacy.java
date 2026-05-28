@@ -47,4 +47,25 @@ public class Pharmacy extends UuidBaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "c_owner_id", nullable = false)
   private Owner owner;
+
+  public static Pharmacy create(
+      String name,
+      String email,
+      String phone,
+      String city,
+      String quarter,
+      String address,
+      String gpsCoordinates,
+      Owner owner) {
+    return Pharmacy.builder()
+        .name(name)
+        .email(email)
+        .phone(phone)
+        .city(city)
+        .quarter(quarter)
+        .address(address)
+        .gpsCoordinates(gpsCoordinates)
+        .owner(owner)
+        .build();
+  }
 }
