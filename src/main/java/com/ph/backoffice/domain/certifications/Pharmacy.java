@@ -45,7 +45,7 @@ public class Pharmacy extends UuidBaseEntity {
   private String gpsCoordinates;
 
   @Column(name = "c_certified", nullable = false)
-  private boolean certified = false;
+  private boolean certified;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "c_owner_id", nullable = false)
