@@ -159,6 +159,13 @@ def openApiSpecs = [
 				outputDir: "generated/sources/openapi",
 				apiPackage: "com.ph.pharmafind.generated.api",
 				modelPkg  : "com.ph.pharmafind.generated.model"
+		],
+		[
+				taskName : 'openApiGenerateEvents',
+				inputSpec: "$rootDir/openapi/event/main.yaml",
+				outputDir: "generated/sources/event",
+				apiPackage: "com.ph.pharmafind.generated.event",
+				modelPkg  : "com.ph.pharmafind.generated.event"
 		]
 ]
 

@@ -1,0 +1,30 @@
+openapi: 3.0.3
+info:
+  title: Pharmafind Events
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    CertificationRequestCreatedEvent:
+      type: object
+      properties:
+        certificationRequestId:
+          type: string
+          format: uuid
+        pharmacyId:
+          type: string
+          format: uuid
+        pharmacyName:
+          type: string
+        ownerUserId:
+          type: string
+          format: uuid
+        documentUrl:
+          type: string
+        notes:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time

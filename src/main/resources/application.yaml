@@ -44,6 +44,17 @@ spring:
         provider:
           google:
             issuer-uri: https://accounts.google.com
+  cloud:
+    function:
+      definition: certificationRequestCreated
+    stream:
+      bindings:
+        certificationRequestCreated-out-0:
+          destination: ${KAFKA_CERTIFICATION_REQUEST_TOPIC:certification-request-created}
+          content-type: application/json
+      kafka:
+        binder:
+          brokers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
 
 server:
   port: "${SERVER_PORT:8084}"
@@ -72,6 +83,5 @@ logging:
 app:
   security:
     issuer: ${APP_SECURITY_ISSUER:http://localhost:8084}
-    frontend-login-url: ${APP_FRONTEND_LOGIN_URL:http://localhost:3000/login}
   jwt:
     jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8084/.well-known/jwks.json}
