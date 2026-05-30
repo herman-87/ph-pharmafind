@@ -30,7 +30,7 @@ components:
         path:
           type: string
         errorCode:
-          type: integer
+          type: string
         violations:
           type: object
           additionalProperties:
