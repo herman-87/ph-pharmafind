@@ -73,4 +73,11 @@
             </column>
         </addColumn>
     </changeSet>
+    <changeSet id="005-add-pharmacy-certified" author="pharmafind">
+        <addColumn tableName="t_pharmacy">
+            <column name="c_certified" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
