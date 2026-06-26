@@ -11,7 +11,8 @@ public enum PharmacyErrorCode {
   PHARMACY_ERR_003("ERR-PHARMACY-003", "Email already exists"),
   PHARMACY_ERR_004("ERR-PHARMACY-004", "Phone already exists"),
   PHARMACY_ERR_005("ERR-PHARMACY-005", "Access denied"),
-  PHARMACY_ERR_006("ERR-PHARMACY-006", "Not the pharmacy owner");
+  PHARMACY_ERR_006("ERR-PHARMACY-006", "Not the pharmacy owner"),
+  PHARMACY_ERR_007("ERR-PHARMACY-007", "Certification request not found");
 
   private final String code;
   private final String message;

@@ -10,13 +10,17 @@ import com.ph.backoffice.adapters.in.web.rest.mapper.PharmacyMapper;
 import com.ph.backoffice.application.pharmacy.usecase.CreateCertificationRequestUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.CreatePharmacyUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.DeletePharmacyUseCase;
+import com.ph.backoffice.application.pharmacy.usecase.GetCertificationRequestUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.GetPharmacyUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.ListCurrentUserPharmaciesUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.ListPharmaciesUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.UpdatePharmacyUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.VerifyPharmacyUseCase;
+import com.ph.backoffice.domain.certifications.CertificationRequest;
 import com.ph.backoffice.domain.certifications.Pharmacy;
+import com.ph.backoffice.domain.certifications.exception.CertificationRequestNotFoundException;
 import com.ph.backoffice.domain.certifications.exception.PharmacyNotFoundException;
+import com.ph.backoffice.domain.certifications.model.CertificationRequestCreateData;
 import com.ph.backoffice.domain.certifications.model.PharmacyCreateRequest;
 import com.ph.backoffice.domain.certifications.model.PharmacyUpdateRequest;
 import com.ph.pharmafind.generated.model.CreateCertificationRequestDTO;
@@ -28,6 +32,8 @@ import com.ph.pharmafind.generated.model.PharmacyPageResponseDTO;
 import com.ph.pharmafind.generated.model.PharmacyResponseDTO;
 import com.ph.pharmafind.generated.model.UpdatePharmacyRequestDTO;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,6 +54,7 @@ class PharmacyControllerTest {
   @Mock private DeletePharmacyUseCase deletePharmacyUseCase;
   @Mock private VerifyPharmacyUseCase verifyPharmacyUseCase;
   @Mock private CreateCertificationRequestUseCase createCertificationRequestUseCase;
+  @Mock private GetCertificationRequestUseCase getCertificationRequestUseCase;
   @Mock private ListCurrentUserPharmaciesUseCase listCurrentUserPharmaciesUseCase;
   @Mock private PharmacyMapper pharmacyMapper;
 
@@ -62,6 +69,7 @@ class PharmacyControllerTest {
             deletePharmacyUseCase,
             verifyPharmacyUseCase,
             createCertificationRequestUseCase,
+            getCertificationRequestUseCase,
             listCurrentUserPharmaciesUseCase,
             pharmacyMapper);
 
@@ -90,14 +98,25 @@ class PharmacyControllerTest {
         .paymentMethods(List.of(new PaymentMethodDTO().type(PaymentMethodDTO.TypeEnum.CASH)));
   }
 
+  private CreateCertificationRequestDTO validCertRequestBody() {
+    return new CreateCertificationRequestDTO()
+        .authorizationNumber("AUT-2026-000123")
+        .taxId("IFU-00000000")
+        .legalRepresentative("Dr. Aïcha OUEDRAOGO")
+        .creationDate(LocalDate.of(2020, 1, 15))
+        .notes("Test");
+  }
+
   // ─── POST /me/pharmacies ──────────────────────────────────────────────────
 
   @Test
   void createPharmacy_returns201WithId() {
     UUID pharmacyId = UUID.randomUUID();
-    when(pharmacyMapper.toCreateRequest(any())).thenReturn(
-        new PharmacyCreateRequest(null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null, null, null, null));
+    when(pharmacyMapper.toCreateRequest(any()))
+        .thenReturn(
+            new PharmacyCreateRequest(
+                null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null));
     when(createPharmacyUseCase.execute(any())).thenReturn(pharmacyId);
     when(pharmacyMapper.toPharmacyIdResponseDTO(pharmacyId))
         .thenReturn(new PharmacyIdResponseDTO().id(pharmacyId));
@@ -213,8 +232,9 @@ class PharmacyControllerTest {
   @Test
   void updatePharmacy_returns204() {
     UUID id = UUID.randomUUID();
-    var expectedRequest = new PharmacyUpdateRequest(null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null);
+    var expectedRequest =
+        new PharmacyUpdateRequest(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     when(pharmacyMapper.toUpdateRequest(any())).thenReturn(expectedRequest);
     doNothing().when(updatePharmacyUseCase).execute(eq(id), any());
 
@@ -231,8 +251,9 @@ class PharmacyControllerTest {
   @Test
   void updatePharmacy_returns404_whenNotFound() {
     UUID id = UUID.randomUUID();
-    var expectedRequest = new PharmacyUpdateRequest(null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null);
+    var expectedRequest =
+        new PharmacyUpdateRequest(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     when(pharmacyMapper.toUpdateRequest(any())).thenReturn(expectedRequest);
     doThrow(new PharmacyNotFoundException(id)).when(updatePharmacyUseCase).execute(any(), any());
 
@@ -276,18 +297,20 @@ class PharmacyControllerTest {
   void createCertificationRequest_returns201() {
     UUID pharmacyId = UUID.randomUUID();
     UUID certifId = UUID.randomUUID();
-    when(createCertificationRequestUseCase.execute(eq(pharmacyId), any(), any()))
+    when(createCertificationRequestUseCase.execute(
+            eq(pharmacyId), any(CertificationRequestCreateData.class)))
         .thenReturn(certifId);
 
     RestAssuredMockMvc.given()
         .contentType("application/json")
-        .body(new CreateCertificationRequestDTO().documentUrl("https://example.com/doc.pdf"))
+        .body(validCertRequestBody())
         .post("/me/pharmacies/{id}/certification-requests", pharmacyId)
         .then()
         .statusCode(HttpStatus.CREATED.value())
         .body("id", equalTo(certifId.toString()));
 
-    verify(createCertificationRequestUseCase).execute(eq(pharmacyId), any(), any());
+    verify(createCertificationRequestUseCase)
+        .execute(eq(pharmacyId), any(CertificationRequestCreateData.class));
   }
 
   @Test
@@ -295,12 +318,63 @@ class PharmacyControllerTest {
     UUID pharmacyId = UUID.randomUUID();
     doThrow(new PharmacyNotFoundException(pharmacyId))
         .when(createCertificationRequestUseCase)
-        .execute(any(), any(), any());
+        .execute(any(), any(CertificationRequestCreateData.class));
 
     RestAssuredMockMvc.given()
         .contentType("application/json")
-        .body(new CreateCertificationRequestDTO().documentUrl("https://example.com/doc.pdf"))
+        .body(validCertRequestBody())
         .post("/me/pharmacies/{id}/certification-requests", pharmacyId)
+        .then()
+        .statusCode(HttpStatus.NOT_FOUND.value());
+  }
+
+  // ─── GET /me/pharmacies/{id}/certification-requests/{requestId} ─────────
+
+  @Test
+  void getCertificationRequest_returns200() {
+    UUID pharmacyId = UUID.randomUUID();
+    UUID requestId = UUID.randomUUID();
+    Pharmacy pharmacy = new Pharmacy();
+    pharmacy.setId(pharmacyId);
+    CertificationRequest request =
+        CertificationRequest.builder()
+            .id(requestId)
+            .pharmacy(pharmacy)
+            .authorizationNumber("AUT-2026-000123")
+            .taxId("IFU-00000000")
+            .legalRepresentative("Dr. Aïcha OUEDRAOGO")
+            .creationDate(LocalDate.of(2020, 1, 15))
+            .notes("Test")
+            .status(CertificationRequest.RequestStatus.DRAFT)
+            .createdAt(LocalDateTime.now())
+            .updatedAt(LocalDateTime.now())
+            .build();
+    when(getCertificationRequestUseCase.execute(pharmacyId, requestId)).thenReturn(request);
+
+    RestAssuredMockMvc.given()
+        .get("/me/pharmacies/{id}/certification-requests/{requestId}", pharmacyId, requestId)
+        .then()
+        .statusCode(HttpStatus.OK.value())
+        .body("id", equalTo(requestId.toString()))
+        .body("pharmacyId", equalTo(pharmacyId.toString()))
+        .body("authorizationNumber", equalTo("AUT-2026-000123"))
+        .body("taxId", equalTo("IFU-00000000"))
+        .body("legalRepresentative", equalTo("Dr. Aïcha OUEDRAOGO"))
+        .body("status", equalTo("DRAFT"));
+
+    verify(getCertificationRequestUseCase).execute(pharmacyId, requestId);
+  }
+
+  @Test
+  void getCertificationRequest_returns404_whenNotFound() {
+    UUID pharmacyId = UUID.randomUUID();
+    UUID requestId = UUID.randomUUID();
+    doThrow(new CertificationRequestNotFoundException(requestId))
+        .when(getCertificationRequestUseCase)
+        .execute(pharmacyId, requestId);
+
+    RestAssuredMockMvc.given()
+        .get("/me/pharmacies/{id}/certification-requests/{requestId}", pharmacyId, requestId)
         .then()
         .statusCode(HttpStatus.NOT_FOUND.value());
   }

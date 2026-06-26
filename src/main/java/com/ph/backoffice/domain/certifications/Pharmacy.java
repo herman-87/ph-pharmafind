@@ -29,31 +29,31 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Pharmacy extends UuidBaseEntity {
 
-  @Column(name = "c_name", nullable = false, length = 200)
+  @Column(name = "c_name")
   private String name;
 
-  @Column(name = "c_email", nullable = false, unique = true, length = 190)
+  @Column(name = "c_email")
   private String email;
 
-  @Column(name = "c_phone", nullable = false, length = 20)
+  @Column(name = "c_phone")
   private String phone;
 
-  @Column(name = "c_city", nullable = false, length = 100)
+  @Column(name = "c_city")
   private String city;
 
-  @Column(name = "c_quarter", nullable = false, length = 100)
+  @Column(name = "c_quarter")
   private String quarter;
 
-  @Column(name = "c_address", nullable = false, length = 300)
+  @Column(name = "c_address")
   private String address;
 
-  @Column(name = "c_gps_coordinates", nullable = false, length = 100)
+  @Column(name = "c_gps_coordinates")
   private String gpsCoordinates;
 
-  @Column(name = "c_registration_number", length = 100)
+  @Column(name = "c_registration_number")
   private String registrationNumber;
 
-  @Column(name = "c_tax_id", length = 100)
+  @Column(name = "c_tax_id")
   private String taxId;
 
   @Column(name = "c_is_24h")
@@ -66,20 +66,20 @@ public class Pharmacy extends UuidBaseEntity {
   private Integer deliveryRadiusKm;
 
   @Convert(converter = OpeningHourListConverter.class)
-  @Column(name = "c_opening_hours", length = 4000)
+  @Column(name = "c_opening_hours")
   private List<OpeningHour> openingHours;
 
-  @Column(name = "c_payment_methods", length = 2000)
+  @Column(name = "c_payment_methods")
   private Map<String, String> paymentMethods;
 
-  @Column(name = "c_social_links", length = 2000)
+  @Column(name = "c_social_links")
   private Map<String, String> socialLinks;
 
-  @Column(name = "c_certified", nullable = false)
+  @Column(name = "c_certified")
   private boolean certified;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "c_owner_id", nullable = false)
+  @JoinColumn(name = "c_owner_id")
   private Owner owner;
 
   public static Pharmacy create(PharmacyData data, Owner owner) {

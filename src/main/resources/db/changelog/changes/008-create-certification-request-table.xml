@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="008-create-certification-request-table" author="essoungou.wonga">
+        <createTable tableName="t_certification_request">
+            <column name="c_id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="c_pharmacy_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="c_authorization_number" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="c_tax_id" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="c_legal_representative" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="c_creation_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="c_authorization_document" type="VARCHAR(500)"/>
+            <column name="c_business_registry_document" type="VARCHAR(500)"/>
+            <column name="c_owner_id_recto_document" type="VARCHAR(500)"/>
+            <column name="c_owner_id_verso_document" type="VARCHAR(500)"/>
+            <column name="c_pharmacy_license_document" type="VARCHAR(500)"/>
+            <column name="c_notes" type="VARCHAR(500)"/>
+            <column name="c_status" type="VARCHAR(20)" defaultValue="DRAFT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="c_created_at" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="c_updated_at" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+            baseTableName="t_certification_request"
+            baseColumnNames="c_pharmacy_id"
+            referencedTableName="t_pharmacy"
+            referencedColumnNames="c_id"
+            constraintName="fk_certification_request_pharmacy"/>
+    </changeSet>
+</databaseChangeLog>

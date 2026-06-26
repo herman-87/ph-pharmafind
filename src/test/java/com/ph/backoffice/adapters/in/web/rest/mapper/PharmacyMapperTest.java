@@ -5,8 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.ph.backoffice.domain.certifications.Pharmacy;
 import com.ph.backoffice.domain.certifications.model.OpeningHour;
 import com.ph.backoffice.domain.certifications.model.PharmacyUpdateRequest;
-import com.ph.pharmafind.generated.model.OpeningHourDTO;
-import com.ph.pharmafind.generated.model.PaymentMethodDTO;
 import com.ph.pharmafind.generated.model.PharmacyResponseDTO;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
@@ -27,36 +25,40 @@ class PharmacyMapperTest {
 
   @BeforeEach
   void setUp() {
-    existingPharmacy = Pharmacy.builder()
-        .id(UUID.fromString("11111111-1111-1111-1111-111111111111"))
-        .name("Pharmacie Originale")
-        .email("contact@pharmacie.cm")
-        .phone("+237699000001")
-        .city("Douala")
-        .quarter("Bonanjo")
-        .address("123 Rue de la Paix")
-        .gpsCoordinates("4.05,9.70")
-        .registrationNumber("REG-001")
-        .taxId("TAX-001")
-        .is24h(false)
-        .deliveryAvailable(true)
-        .deliveryRadiusKm(10)
-        .certified(true)
-        .openingHours(List.of(
-            new OpeningHour(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(18, 0), true)))
-        .paymentMethods(Map.of("CASH", "CASH"))
-        .socialLinks(Map.of("facebook", "fb.com/pharma"))
-        .createdAt(LocalDateTime.of(2025, 1, 1, 10, 0))
-        .updatedAt(LocalDateTime.of(2025, 6, 1, 14, 30))
-        .build();
+    existingPharmacy =
+        Pharmacy.builder()
+            .id(UUID.fromString("11111111-1111-1111-1111-111111111111"))
+            .name("Pharmacie Originale")
+            .email("contact@pharmacie.cm")
+            .phone("+237699000001")
+            .city("Douala")
+            .quarter("Bonanjo")
+            .address("123 Rue de la Paix")
+            .gpsCoordinates("4.05,9.70")
+            .registrationNumber("REG-001")
+            .taxId("TAX-001")
+            .is24h(false)
+            .deliveryAvailable(true)
+            .deliveryRadiusKm(10)
+            .certified(true)
+            .openingHours(
+                List.of(
+                    new OpeningHour(
+                        DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(18, 0), true)))
+            .paymentMethods(Map.of("CASH", "CASH"))
+            .socialLinks(Map.of("facebook", "fb.com/pharma"))
+            .createdAt(LocalDateTime.of(2025, 1, 1, 10, 0))
+            .updatedAt(LocalDateTime.of(2025, 6, 1, 14, 30))
+            .build();
   }
 
   // ─── updatePharmacy ─────────────────────────────────────────────────────────
 
   @Test
   void shouldIgnoreNullFields() {
-    var request = new PharmacyUpdateRequest(null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null);
+    var request =
+        new PharmacyUpdateRequest(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
     mapper.updatePharmacy(request, existingPharmacy);
 
@@ -75,9 +77,22 @@ class PharmacyMapperTest {
 
   @Test
   void shouldCopyNonNullFields() {
-    var request = new PharmacyUpdateRequest(
-        "Pharmacie Mise à Jour", "Yaoundé", null, "Mvan", "456 Avenue de la République",
-        3.87, 11.52, true, false, 20, null, null, null, null);
+    var request =
+        new PharmacyUpdateRequest(
+            "Pharmacie Mise à Jour",
+            "Yaoundé",
+            null,
+            "Mvan",
+            "456 Avenue de la République",
+            3.87,
+            11.52,
+            true,
+            false,
+            20,
+            null,
+            null,
+            null,
+            null);
 
     mapper.updatePharmacy(request, existingPharmacy);
 
@@ -93,8 +108,9 @@ class PharmacyMapperTest {
 
   @Test
   void shouldResolveQuarterFromDistrict_whenLocalityIsNull() {
-    var request = new PharmacyUpdateRequest(null, null, "Bastos", null, null, null, null,
-        null, null, null, null, null, null, null);
+    var request =
+        new PharmacyUpdateRequest(
+            null, null, "Bastos", null, null, null, null, null, null, null, null, null, null, null);
 
     mapper.updatePharmacy(request, existingPharmacy);
 
@@ -103,8 +119,10 @@ class PharmacyMapperTest {
 
   @Test
   void shouldUseLocalityOverDistrict() {
-    var request = new PharmacyUpdateRequest(null, null, "Bastos", "Mvan", null, null, null,
-        null, null, null, null, null, null, null);
+    var request =
+        new PharmacyUpdateRequest(
+            null, null, "Bastos", "Mvan", null, null, null, null, null, null, null, null, null,
+            null);
 
     mapper.updatePharmacy(request, existingPharmacy);
 
@@ -113,8 +131,9 @@ class PharmacyMapperTest {
 
   @Test
   void shouldNotUpdateGpsCoordinates_whenOnlyLatitudeProvided() {
-    var request = new PharmacyUpdateRequest(null, null, null, null, null, 3.87, null,
-        null, null, null, null, null, null, null);
+    var request =
+        new PharmacyUpdateRequest(
+            null, null, null, null, null, 3.87, null, null, null, null, null, null, null, null);
 
     mapper.updatePharmacy(request, existingPharmacy);
 
@@ -123,8 +142,9 @@ class PharmacyMapperTest {
 
   @Test
   void shouldNotUpdateGpsCoordinates_whenOnlyLongitudeProvided() {
-    var request = new PharmacyUpdateRequest(null, null, null, null, null, null, 11.52,
-        null, null, null, null, null, null, null);
+    var request =
+        new PharmacyUpdateRequest(
+            null, null, null, null, null, null, 11.52, null, null, null, null, null, null, null);
 
     mapper.updatePharmacy(request, existingPharmacy);
 
@@ -133,17 +153,32 @@ class PharmacyMapperTest {
 
   @Test
   void shouldIgnoreIdOwnerAndCertified() {
-    Pharmacy pharmacyWithDefaults = Pharmacy.builder()
-        .id(UUID.randomUUID())
-        .name("Test")
-        .city("City")
-        .quarter("Quarter")
-        .address("Address")
-        .gpsCoordinates("0.0,0.0")
-        .build();
+    Pharmacy pharmacyWithDefaults =
+        Pharmacy.builder()
+            .id(UUID.randomUUID())
+            .name("Test")
+            .city("City")
+            .quarter("Quarter")
+            .address("Address")
+            .gpsCoordinates("0.0,0.0")
+            .build();
 
-    var request = new PharmacyUpdateRequest("New Name", null, null, null, null, null, null,
-        null, null, null, null, null, null, null);
+    var request =
+        new PharmacyUpdateRequest(
+            "New Name",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
     mapper.updatePharmacy(request, pharmacyWithDefaults);
 
@@ -158,27 +193,31 @@ class PharmacyMapperTest {
   void shouldMapAllFieldsToResponseDTO() {
     PharmacyResponseDTO dto = mapper.toPharmacyResponseDTO(existingPharmacy);
 
-    assertThat(dto).satisfies(d -> {
-      assertThat(d.getId()).isEqualTo(existingPharmacy.getId());
-      assertThat(d.getName()).isEqualTo("Pharmacie Originale");
-      assertThat(d.getEmail()).isEqualTo("contact@pharmacie.cm");
-      assertThat(d.getPhone()).isEqualTo("+237699000001");
-      assertThat(d.getCity()).isEqualTo("Douala");
-      assertThat(d.getDistrict()).isEqualTo("Bonanjo");
-      assertThat(d.getLocality()).isEqualTo("Bonanjo");
-      assertThat(d.getFullAddress()).isEqualTo("123 Rue de la Paix");
-      assertThat(d.getLatitude()).isEqualByComparingTo(BigDecimal.valueOf(4.05));
-      assertThat(d.getLongitude()).isEqualByComparingTo(BigDecimal.valueOf(9.70));
-      assertThat(d.getRegistrationNumber()).isEqualTo("REG-001");
-      assertThat(d.getTaxId()).isEqualTo("TAX-001");
-      assertThat(d.getIs24h()).isFalse();
-      assertThat(d.getDeliveryAvailable()).isTrue();
-      assertThat(d.getDeliveryRadiusKm()).isEqualTo(10);
-      assertThat(d.getIsCertified()).isTrue();
-      assertThat(d.getStatus()).isEqualTo(PharmacyResponseDTO.StatusEnum.PENDING_VERIFICATION);
-      assertThat(d.getCreatedAt()).isEqualTo(LocalDateTime.of(2025, Month.JANUARY, 1, 10, 0));
-      assertThat(d.getUpdatedAt()).isEqualTo(LocalDateTime.of(2025, Month.JUNE, 1, 14, 30));
-    });
+    assertThat(dto)
+        .satisfies(
+            d -> {
+              assertThat(d.getId()).isEqualTo(existingPharmacy.getId());
+              assertThat(d.getName()).isEqualTo("Pharmacie Originale");
+              assertThat(d.getEmail()).isEqualTo("contact@pharmacie.cm");
+              assertThat(d.getPhone()).isEqualTo("+237699000001");
+              assertThat(d.getCity()).isEqualTo("Douala");
+              assertThat(d.getDistrict()).isEqualTo("Bonanjo");
+              assertThat(d.getLocality()).isEqualTo("Bonanjo");
+              assertThat(d.getFullAddress()).isEqualTo("123 Rue de la Paix");
+              assertThat(d.getLatitude()).isEqualByComparingTo(BigDecimal.valueOf(4.05));
+              assertThat(d.getLongitude()).isEqualByComparingTo(BigDecimal.valueOf(9.70));
+              assertThat(d.getRegistrationNumber()).isEqualTo("REG-001");
+              assertThat(d.getTaxId()).isEqualTo("TAX-001");
+              assertThat(d.getIs24h()).isFalse();
+              assertThat(d.getDeliveryAvailable()).isTrue();
+              assertThat(d.getDeliveryRadiusKm()).isEqualTo(10);
+              assertThat(d.getIsCertified()).isTrue();
+              assertThat(d.getStatus())
+                  .isEqualTo(PharmacyResponseDTO.StatusEnum.PENDING_VERIFICATION);
+              assertThat(d.getCreatedAt())
+                  .isEqualTo(LocalDateTime.of(2025, Month.JANUARY, 1, 10, 0));
+              assertThat(d.getUpdatedAt()).isEqualTo(LocalDateTime.of(2025, Month.JUNE, 1, 14, 30));
+            });
   }
 
   @Test

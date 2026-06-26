@@ -63,7 +63,6 @@ class CertificationDomainServiceTest {
     UUID id = UUID.randomUUID();
     when(pharmacyRepository.findById(id)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> service.getPharmacy(id))
-        .isInstanceOf(PharmacyNotFoundException.class);
+    assertThatThrownBy(() -> service.getPharmacy(id)).isInstanceOf(PharmacyNotFoundException.class);
   }
 }

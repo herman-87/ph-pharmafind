@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
     HttpStatus status =
         switch (ex.getErrorCode()) {
           case PHARMACY_ERR_003, PHARMACY_ERR_004 -> HttpStatus.CONFLICT;
-          case PHARMACY_ERR_002 -> HttpStatus.NOT_FOUND;
+          case PHARMACY_ERR_002, PHARMACY_ERR_007 -> HttpStatus.NOT_FOUND;
           case PHARMACY_ERR_006 -> HttpStatus.FORBIDDEN;
           default -> HttpStatus.BAD_REQUEST;
         };

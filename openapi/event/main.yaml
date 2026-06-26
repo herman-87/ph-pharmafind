@@ -19,7 +19,23 @@ components:
         ownerUserId:
           type: string
           format: uuid
-        documentUrl:
+        authorizationNumber:
+          type: string
+        taxId:
+          type: string
+        legalRepresentative:
+          type: string
+        creationDate:
+          type: string
+        authorizationDocument:
+          type: string
+        businessRegistryDocument:
+          type: string
+        ownerIdRectoDocument:
+          type: string
+        ownerIdVersoDocument:
+          type: string
+        pharmacyLicenseDocument:
           type: string
         notes:
           type: string

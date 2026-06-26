@@ -50,7 +50,10 @@ public interface PharmacyMapper {
   @Mapping(target = "deliveryRadiusKm", source = "deliveryRadiusKm")
   @Mapping(target = "openingHours", source = "openingHours")
   @Mapping(target = "dutySchedules", source = "dutySchedules")
-  @Mapping(target = "paymentMethods", source = "paymentMethods", qualifiedByName = "toPaymentMethodsMap")
+  @Mapping(
+      target = "paymentMethods",
+      source = "paymentMethods",
+      qualifiedByName = "toPaymentMethodsMap")
   @Mapping(target = "socialLinks", source = "socialLinks")
   PharmacyCreateRequest toCreateRequest(CreatePharmacyRequestDTO dto);
 
@@ -69,13 +72,18 @@ public interface PharmacyMapper {
   @Mapping(target = "deliveryRadiusKm", source = "deliveryRadiusKm")
   @Mapping(target = "openingHours", source = "openingHours")
   @Mapping(target = "dutySchedules", source = "dutySchedules")
-  @Mapping(target = "paymentMethods", source = "paymentMethods", qualifiedByName = "toPaymentMethodsMap")
+  @Mapping(
+      target = "paymentMethods",
+      source = "paymentMethods",
+      qualifiedByName = "toPaymentMethodsMap")
   @Mapping(target = "socialLinks", source = "socialLinks")
   PharmacyUpdateRequest toUpdateRequest(UpdatePharmacyRequestDTO dto);
 
   // ─── Partial Update (null-safe merge) ───────────────────────────────────────
 
-  @BeanMapping(ignoreByDefault = true, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+  @BeanMapping(
+      ignoreByDefault = true,
+      nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   @Mapping(target = "name", source = "name")
   @Mapping(target = "city", source = "city")
   @Mapping(target = "address", source = "fullAddress")
@@ -88,7 +96,8 @@ public interface PharmacyMapper {
   void updatePharmacy(PharmacyUpdateRequest request, @MappingTarget Pharmacy pharmacy);
 
   @AfterMapping
-  default void afterUpdatePharmacy(PharmacyUpdateRequest request, @MappingTarget Pharmacy pharmacy) {
+  default void afterUpdatePharmacy(
+      PharmacyUpdateRequest request, @MappingTarget Pharmacy pharmacy) {
     if (request.locality() != null && !request.locality().isBlank()) {
       pharmacy.setQuarter(request.locality());
     } else if (request.district() != null && !request.district().isBlank()) {
@@ -156,7 +165,7 @@ public interface PharmacyMapper {
     if (paymentMethodDTOS == null) return Collections.emptyMap();
     Map<String, String> map = new HashMap<>();
     for (PaymentMethodDTO dto : paymentMethodDTOS) {
-        map.put(dto.getType().name(), dto.getAccountNumber());
+      map.put(dto.getType().name(), dto.getAccountNumber());
     }
     return map;
   }
@@ -177,8 +186,12 @@ public interface PharmacyMapper {
 
   default OpeningHour toOpeningHour(OpeningHourDTO openingHourDTO) {
     if (openingHourDTO == null) return null;
-    LocalTime openTime = openingHourDTO.getOpenTime() != null ? LocalTime.parse(openingHourDTO.getOpenTime()) : null;
-    LocalTime closeTime = openingHourDTO.getCloseTime() != null ? LocalTime.parse(openingHourDTO.getCloseTime()) : null;
+    LocalTime openTime =
+        openingHourDTO.getOpenTime() != null ? LocalTime.parse(openingHourDTO.getOpenTime()) : null;
+    LocalTime closeTime =
+        openingHourDTO.getCloseTime() != null
+            ? LocalTime.parse(openingHourDTO.getCloseTime())
+            : null;
     boolean isOpen = openingHourDTO.getIsClosed() == null || !openingHourDTO.getIsClosed();
     return new OpeningHour(
         DayOfWeek.valueOf(openingHourDTO.getDayOfWeek().name()), openTime, closeTime, isOpen);
@@ -189,7 +202,8 @@ public interface PharmacyMapper {
     return new OpeningHourDTO()
         .dayOfWeek(OpeningHourDTO.DayOfWeekEnum.valueOf(openingHour.getDayOfWeek().name()))
         .openTime(openingHour.getOpenTime() != null ? openingHour.getOpenTime().toString() : null)
-        .closeTime(openingHour.getCloseTime() != null ? openingHour.getCloseTime().toString() : null)
+        .closeTime(
+            openingHour.getCloseTime() != null ? openingHour.getCloseTime().toString() : null)
         .isClosed(!openingHour.isOpen());
   }
 
@@ -197,9 +211,10 @@ public interface PharmacyMapper {
     if (paymentMethods == null) return Collections.emptyList();
     List<PaymentMethodDTO> list = new ArrayList<>();
     for (Map.Entry<String, String> entry : paymentMethods.entrySet()) {
-      list.add(new PaymentMethodDTO()
-          .type(PaymentMethodDTO.TypeEnum.fromValue(entry.getKey()))
-          .accountNumber(entry.getValue()));
+      list.add(
+          new PaymentMethodDTO()
+              .type(PaymentMethodDTO.TypeEnum.fromValue(entry.getKey()))
+              .accountNumber(entry.getValue()));
     }
     return list;
   }

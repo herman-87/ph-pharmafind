@@ -4,13 +4,16 @@ import com.ph.backoffice.adapters.in.web.rest.mapper.PharmacyMapper;
 import com.ph.backoffice.application.pharmacy.usecase.CreateCertificationRequestUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.CreatePharmacyUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.DeletePharmacyUseCase;
+import com.ph.backoffice.application.pharmacy.usecase.GetCertificationRequestUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.GetPharmacyUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.ListCurrentUserPharmaciesUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.ListPharmaciesUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.UpdatePharmacyUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.VerifyPharmacyUseCase;
+import com.ph.backoffice.domain.certifications.model.CertificationRequestCreateData;
 import com.ph.pharmafind.generated.api.PharmacyApi;
 import com.ph.pharmafind.generated.model.CertificationRequestIdResponseDTO;
+import com.ph.pharmafind.generated.model.CertificationRequestResponseDTO;
 import com.ph.pharmafind.generated.model.CreateCertificationRequestDTO;
 import com.ph.pharmafind.generated.model.CreatePharmacyRequestDTO;
 import com.ph.pharmafind.generated.model.PharmacyIdResponseDTO;
@@ -36,6 +39,7 @@ public class PharmacyController implements PharmacyApi {
   private final DeletePharmacyUseCase deletePharmacyUseCase;
   private final VerifyPharmacyUseCase verifyPharmacyUseCase;
   private final CreateCertificationRequestUseCase createCertificationRequestUseCase;
+  private final GetCertificationRequestUseCase getCertificationRequestUseCase;
   private final ListCurrentUserPharmaciesUseCase listCurrentUserPharmaciesUseCase;
   private final PharmacyMapper pharmacyMapper;
 
@@ -91,13 +95,48 @@ public class PharmacyController implements PharmacyApi {
 
   @Override
   public ResponseEntity<CertificationRequestIdResponseDTO> createCertificationRequest(
-      UUID id, @Valid CreateCertificationRequestDTO createCertificationRequestDTO) {
-    var requestId =
-        createCertificationRequestUseCase.execute(
-            id,
-            createCertificationRequestDTO.getDocumentUrl(),
-            createCertificationRequestDTO.getNotes());
+      UUID id, @Valid CreateCertificationRequestDTO dto) {
+    var data =
+        new CertificationRequestCreateData(
+            dto.getAuthorizationNumber(),
+            dto.getTaxId(),
+            dto.getLegalRepresentative(),
+            dto.getCreationDate(),
+            dto.getAuthorizationDocument(),
+            dto.getBusinessRegistryDocument(),
+            dto.getOwnerIdRectoDocument(),
+            dto.getOwnerIdVersoDocument(),
+            dto.getPharmacyLicenseDocument(),
+            dto.getNotes());
+    var requestId = createCertificationRequestUseCase.execute(id, data);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(new CertificationRequestIdResponseDTO().id(requestId));
+  }
+
+  @Override
+  public ResponseEntity<CertificationRequestResponseDTO> getCertificationRequest(
+      UUID pharmacyId, UUID requestId) {
+    var request = getCertificationRequestUseCase.execute(pharmacyId, requestId);
+    return ResponseEntity.ok(toResponseDTO(request));
+  }
+
+  private static CertificationRequestResponseDTO toResponseDTO(
+      com.ph.backoffice.domain.certifications.CertificationRequest request) {
+    return new CertificationRequestResponseDTO()
+        .id(request.getId())
+        .pharmacyId(request.getPharmacy().getId())
+        .authorizationNumber(request.getAuthorizationNumber())
+        .taxId(request.getTaxId())
+        .legalRepresentative(request.getLegalRepresentative())
+        .creationDate(request.getCreationDate())
+        .authorizationDocument(request.getAuthorizationDocument())
+        .businessRegistryDocument(request.getBusinessRegistryDocument())
+        .ownerIdRectoDocument(request.getOwnerIdRectoDocument())
+        .ownerIdVersoDocument(request.getOwnerIdVersoDocument())
+        .pharmacyLicenseDocument(request.getPharmacyLicenseDocument())
+        .notes(request.getNotes())
+        .status(request.getStatus().name())
+        .createdAt(request.getCreatedAt())
+        .updatedAt(request.getUpdatedAt());
   }
 }

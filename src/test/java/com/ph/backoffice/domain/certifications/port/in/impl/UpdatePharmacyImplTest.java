@@ -36,7 +36,8 @@ class UpdatePharmacyImplTest {
   @BeforeEach
   void setUp() {
     updatePharmacyImpl =
-        new UpdatePharmacyImpl(pharmacyRepository, pharmacyUpdateMapper, certificationDomainService);
+        new UpdatePharmacyImpl(
+            pharmacyRepository, pharmacyUpdateMapper, certificationDomainService);
 
     pharmacyId = UUID.randomUUID();
     callerId = UUID.randomUUID();
