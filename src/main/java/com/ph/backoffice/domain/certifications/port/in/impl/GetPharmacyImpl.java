@@ -14,8 +14,6 @@ public class GetPharmacyImpl implements GetPharmacy {
 
   @Override
   public Pharmacy getPharmacy(UUID id) {
-    return pharmacyRepository
-        .findById(id)
-        .orElseThrow(() -> new PharmacyNotFoundException(id));
+    return pharmacyRepository.findById(id).orElseThrow(() -> new PharmacyNotFoundException(id));
   }
 }

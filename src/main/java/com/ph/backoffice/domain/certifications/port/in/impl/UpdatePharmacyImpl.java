@@ -5,6 +5,8 @@ import com.ph.backoffice.domain.certifications.exception.PharmacyNotFoundExcepti
 import com.ph.backoffice.domain.certifications.model.PharmacyUpdateRequest;
 import com.ph.backoffice.domain.certifications.port.in.feat.UpdatePharmacy;
 import com.ph.backoffice.domain.certifications.port.out.feat.PharmacyRepository;
+import com.ph.backoffice.domain.certifications.port.out.feat.PharmacyUpdateMapper;
+import com.ph.backoffice.domain.certifications.service.CertificationDomainService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 
@@ -12,30 +14,15 @@ import lombok.RequiredArgsConstructor;
 public class UpdatePharmacyImpl implements UpdatePharmacy {
 
   private final PharmacyRepository pharmacyRepository;
+  private final PharmacyUpdateMapper pharmacyUpdateMapper;
+  private final CertificationDomainService certificationDomainService;
 
   @Override
-  public void updatePharmacy(UUID id, PharmacyUpdateRequest request) {
-    Pharmacy pharmacy = pharmacyRepository
-        .findById(id)
-        .orElseThrow(() -> new PharmacyNotFoundException(id));
-
-    if (request.name() != null) {
-      pharmacy.setName(request.name());
-    }
-    if (request.city() != null) {
-      pharmacy.setCity(request.city());
-    }
-    if (request.locality() != null) {
-      pharmacy.setQuarter(request.locality());
-    } else if (request.district() != null) {
-      pharmacy.setQuarter(request.district());
-    }
-    if (request.fullAddress() != null) {
-      pharmacy.setAddress(request.fullAddress());
-    }
-    if (request.latitude() != null && request.longitude() != null) {
-      pharmacy.setGpsCoordinates(request.latitude() + "," + request.longitude());
-    }
+  public void updatePharmacy(UUID pharmacyId, PharmacyUpdateRequest request, UUID callerId) {
+    Pharmacy pharmacy =
+        pharmacyRepository.findById(pharmacyId).orElseThrow(() -> new PharmacyNotFoundException(pharmacyId));
+    certificationDomainService.validateOwnership(pharmacy, callerId);
+    pharmacyUpdateMapper.update(request, pharmacy);
 
     pharmacyRepository.save(pharmacy);
   }

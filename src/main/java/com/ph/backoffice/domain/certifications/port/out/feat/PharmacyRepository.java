@@ -23,4 +23,8 @@ public interface PharmacyRepository {
 
   Page<Pharmacy> findByNameContainingIgnoreCaseOrCityContainingIgnoreCase(
       String name, String city, Pageable pageable);
+
+  Page<Pharmacy> findByOwnerUsername(String userName, Pageable pageable);
+
+  Page<Pharmacy> findByOwnerUserId(UUID userId, Pageable pageable);
 }

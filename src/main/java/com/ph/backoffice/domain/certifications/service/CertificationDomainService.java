@@ -2,13 +2,13 @@ package com.ph.backoffice.domain.certifications.service;
 
 import com.ph.backoffice.domain.certifications.Pharmacy;
 import com.ph.backoffice.domain.certifications.exception.EmailAlreadyExistsException;
+import com.ph.backoffice.domain.certifications.exception.NotPharmacyOwnerException;
 import com.ph.backoffice.domain.certifications.exception.PharmacyNotFoundException;
 import com.ph.backoffice.domain.certifications.exception.PhoneAlreadyExistsException;
 import com.ph.backoffice.domain.certifications.port.out.feat.PharmacyRepository;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.util.UUID;
 
 @RequiredArgsConstructor
 public class CertificationDomainService {
@@ -37,7 +37,13 @@ public class CertificationDomainService {
 
   public @NonNull Pharmacy getPharmacy(UUID pharmacyId) {
     return pharmacyRepository
-            .findById(pharmacyId)
-            .orElseThrow(() -> new PharmacyNotFoundException(pharmacyId));
+        .findById(pharmacyId)
+        .orElseThrow(() -> new PharmacyNotFoundException(pharmacyId));
+  }
+
+  public void validateOwnership(Pharmacy pharmacy, UUID userId) {
+    if (!pharmacy.getOwner().getUserId().equals(userId)) {
+      throw new NotPharmacyOwnerException();
+    }
   }
 }

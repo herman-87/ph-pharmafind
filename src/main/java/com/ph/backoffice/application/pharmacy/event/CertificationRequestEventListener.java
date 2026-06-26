@@ -11,14 +11,17 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class CertificationRequestEventListener {
 
-  private static final Logger log = LoggerFactory.getLogger(CertificationRequestEventListener.class);
+  private static final Logger log =
+      LoggerFactory.getLogger(CertificationRequestEventListener.class);
 
   private final CertificationRequestEventPublisher eventPublisher;
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void onCertificationRequestCreated(CertificationRequestCreatedDomainEvent event) {
-    log.info("Transaction committed — publishing CertificationRequestCreatedEvent: requestId={}, pharmacyId={}",
-        event.event().getCertificationRequestId(), event.event().getPharmacyId());
+    log.info(
+        "Transaction committed — publishing CertificationRequestCreatedEvent: requestId={}, pharmacyId={}",
+        event.event().getCertificationRequestId(),
+        event.event().getPharmacyId());
     eventPublisher.certificationRequestCreated(event.event());
   }
 }

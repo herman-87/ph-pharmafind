@@ -17,4 +17,8 @@ public interface PharmacySpringRepository extends JpaRepository<Pharmacy, UUID> 
 
   Page<Pharmacy> findByNameContainingIgnoreCaseOrCityContainingIgnoreCase(
       String name, String city, Pageable pageable);
+
+  Page<Pharmacy> findAllByOwnerUsername(String userName, Pageable pageable);
+
+  Page<Pharmacy> findByOwner_UserId(UUID userId, Pageable pageable);
 }

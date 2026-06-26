@@ -4,5 +4,6 @@ import com.ph.backoffice.domain.certifications.CertificationRequest;
 import java.util.UUID;
 
 public interface CreateCertificationRequest {
-  CertificationRequest createCertificationRequest(UUID pharmacyId, String documentUrl, String notes);
+  CertificationRequest createCertificationRequest(
+      UUID pharmacyId, String documentUrl, String notes);
 }

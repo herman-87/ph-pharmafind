@@ -56,4 +56,14 @@ public class PharmacyRepositoryImpl implements PharmacyRepository {
     return pharmacySpringRepository.findByNameContainingIgnoreCaseOrCityContainingIgnoreCase(
         name, city, pageable);
   }
+
+  @Override
+  public Page<Pharmacy> findByOwnerUsername(String userName, Pageable pageable) {
+    return pharmacySpringRepository.findAllByOwnerUsername(userName, pageable);
+  }
+
+  @Override
+  public Page<Pharmacy> findByOwnerUserId(UUID userId, Pageable pageable) {
+    return pharmacySpringRepository.findByOwner_UserId(userId, pageable);
+  }
 }

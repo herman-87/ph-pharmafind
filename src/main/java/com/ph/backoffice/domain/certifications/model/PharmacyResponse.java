@@ -3,6 +3,7 @@ package com.ph.backoffice.domain.certifications.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public record PharmacyResponse(
@@ -22,15 +23,10 @@ public record PharmacyResponse(
     Boolean isCertified,
     List<OpeningHour> openingHours,
     List<DutySchedule> dutySchedules,
-    List<PaymentMethod> paymentMethods,
-    List<SocialLink> socialLinks,
+    Map<String, String> paymentMethods,
+    Map<String, String> socialLinks,
     LocalDateTime createdAt) {
 
-  public record OpeningHour(String dayOfWeek, String openTime, String closeTime, Boolean isClosed) {}
-
-  public record DutySchedule(LocalDate startDate, LocalDate endDate, String startTime, String endTime) {}
-
-  public record PaymentMethod(String type, String accountNumber) {}
-
-  public record SocialLink(String type, String value) {}
+  public record DutySchedule(
+      LocalDate startDate, LocalDate endDate, String startTime, String endTime) {}
 }

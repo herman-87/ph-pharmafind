@@ -1,9 +1,9 @@
 package com.ph.backoffice.configuration.jwt;
 
 import cm.fastrelays.common.exception.InternalServerError;
-import com.ph.backoffice.configuration.properties.JwtProperties;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.ph.backoffice.configuration.properties.JwtProperties;
 import java.net.URI;
 import java.security.interfaces.RSAPublicKey;
 import org.slf4j.Logger;

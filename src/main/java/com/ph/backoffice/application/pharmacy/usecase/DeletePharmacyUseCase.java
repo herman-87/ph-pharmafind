@@ -1,5 +1,6 @@
 package com.ph.backoffice.application.pharmacy.usecase;
 
+import cm.fastrelays.common.security.CurrentUser;
 import com.ph.backoffice.domain.certifications.port.in.feat.DeletePharmacy;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,6 @@ public class DeletePharmacyUseCase {
 
   @Transactional
   public void execute(UUID id) {
-    deletePharmacy.deletePharmacy(id);
+    deletePharmacy.deletePharmacy(id, CurrentUser.getUserId());
   }
 }

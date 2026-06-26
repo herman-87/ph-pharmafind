@@ -13,8 +13,6 @@ public class VerifyPharmacyImpl implements VerifyPharmacy {
 
   @Override
   public void verifyPharmacy(UUID id, String token) {
-    pharmacyRepository
-        .findById(id)
-        .orElseThrow(() -> new PharmacyNotFoundException(id));
+    pharmacyRepository.findById(id).orElseThrow(() -> new PharmacyNotFoundException(id));
   }
 }

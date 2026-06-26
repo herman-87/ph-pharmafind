@@ -5,6 +5,7 @@ import com.ph.backoffice.application.pharmacy.usecase.CreateCertificationRequest
 import com.ph.backoffice.application.pharmacy.usecase.CreatePharmacyUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.DeletePharmacyUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.GetPharmacyUseCase;
+import com.ph.backoffice.application.pharmacy.usecase.ListCurrentUserPharmaciesUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.ListPharmaciesUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.UpdatePharmacyUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.VerifyPharmacyUseCase;
@@ -18,7 +19,6 @@ import com.ph.pharmafind.generated.model.PharmacyResponseDTO;
 import com.ph.pharmafind.generated.model.UpdatePharmacyRequestDTO;
 import jakarta.validation.Valid;
 import java.util.UUID;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -36,6 +36,7 @@ public class PharmacyController implements PharmacyApi {
   private final DeletePharmacyUseCase deletePharmacyUseCase;
   private final VerifyPharmacyUseCase verifyPharmacyUseCase;
   private final CreateCertificationRequestUseCase createCertificationRequestUseCase;
+  private final ListCurrentUserPharmaciesUseCase listCurrentUserPharmaciesUseCase;
   private final PharmacyMapper pharmacyMapper;
 
   @Override
@@ -82,12 +83,20 @@ public class PharmacyController implements PharmacyApi {
   }
 
   @Override
+  public ResponseEntity<PharmacyPageResponseDTO> getMyPharmacies(Integer page, Integer size) {
+    var pageable = PageRequest.of(page, size);
+    var pharmacies = listCurrentUserPharmaciesUseCase.execute(pageable);
+    return ResponseEntity.ok(pharmacyMapper.toPharmacyPageResponseDTO(pharmacies));
+  }
+
+  @Override
   public ResponseEntity<CertificationRequestIdResponseDTO> createCertificationRequest(
       UUID id, @Valid CreateCertificationRequestDTO createCertificationRequestDTO) {
-    var requestId = createCertificationRequestUseCase.execute(
-        id,
-        createCertificationRequestDTO.getDocumentUrl(),
-        createCertificationRequestDTO.getNotes());
+    var requestId =
+        createCertificationRequestUseCase.execute(
+            id,
+            createCertificationRequestDTO.getDocumentUrl(),
+            createCertificationRequestDTO.getNotes());
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(new CertificationRequestIdResponseDTO().id(requestId));
   }

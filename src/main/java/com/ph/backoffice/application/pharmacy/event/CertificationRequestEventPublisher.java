@@ -11,13 +11,16 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CertificationRequestEventPublisher {
 
-  private static final String CERTIFICATION_REQUEST_CREATED_CHANNEL = "certificationRequestCreated-out-0";
+  private static final String CERTIFICATION_REQUEST_CREATED_CHANNEL =
+      "certificationRequestCreated-out-0";
 
   private final StreamBridge streamBridge;
 
   public void certificationRequestCreated(CertificationRequestCreatedEvent event) {
-    log.info("Publishing CertificationRequestCreatedEvent: requestId={}, pharmacyId={}",
-            event.getCertificationRequestId(), event.getPharmacyId());
+    log.info(
+        "Publishing CertificationRequestCreatedEvent: requestId={}, pharmacyId={}",
+        event.getCertificationRequestId(),
+        event.getPharmacyId());
     streamBridge.send(CERTIFICATION_REQUEST_CREATED_CHANNEL, event);
   }
 }

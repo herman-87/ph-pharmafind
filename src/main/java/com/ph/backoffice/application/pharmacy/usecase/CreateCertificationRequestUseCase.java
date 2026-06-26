@@ -19,18 +19,20 @@ public class CreateCertificationRequestUseCase {
 
   @Transactional
   public UUID execute(UUID pharmacyId, String documentUrl, String notes) {
-    var saved = createCertificationRequest.createCertificationRequest(pharmacyId, documentUrl, notes);
+    var saved =
+        createCertificationRequest.createCertificationRequest(pharmacyId, documentUrl, notes);
     var pharmacy = saved.getPharmacy();
 
-    var event = new CertificationRequestCreatedEvent()
-        .certificationRequestId(saved.getId())
-        .pharmacyId(pharmacyId)
-        .pharmacyName(pharmacy.getName())
-        .ownerUserId(pharmacy.getOwner().getUserId())
-        .documentUrl(documentUrl)
-        .notes(notes)
-        .status(saved.getStatus().name())
-        .createdAt(LocalDateTime.now());
+    var event =
+        new CertificationRequestCreatedEvent()
+            .certificationRequestId(saved.getId())
+            .pharmacyId(pharmacyId)
+            .pharmacyName(pharmacy.getName())
+            .ownerUserId(pharmacy.getOwner().getUserId())
+            .documentUrl(documentUrl)
+            .notes(notes)
+            .status(saved.getStatus().name())
+            .createdAt(LocalDateTime.now());
 
     eventPublisher.publishEvent(new CertificationRequestCreatedDomainEvent(event));
 

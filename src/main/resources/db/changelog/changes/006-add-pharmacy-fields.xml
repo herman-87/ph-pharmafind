@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="006-add-pharmacy-fields" author="pharmafind">
+        <addColumn tableName="t_pharmacy">
+            <column name="c_registration_number" type="VARCHAR(100)"/>
+            <column name="c_tax_id" type="VARCHAR(100)"/>
+            <column name="c_is_24h" type="BOOLEAN"/>
+            <column name="c_delivery_available" type="BOOLEAN"/>
+            <column name="c_delivery_radius_km" type="INTEGER"/>
+            <column name="c_opening_hours" type="VARCHAR(4000)"/>
+            <column name="c_payment_methods" type="VARCHAR(2000)"/>
+            <column name="c_social_links" type="VARCHAR(2000)"/>
+            <column name="c_website" type="VARCHAR(300)"/>
+            <column name="c_whatsapp" type="VARCHAR(50)"/>
+            <column name="c_facebook" type="VARCHAR(300)"/>
+            <column name="c_instagram" type="VARCHAR(300)"/>
+            <column name="c_tiktok" type="VARCHAR(300)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="007-drop-redundant-social-link-columns" author="pharmafind">
+        <dropColumn tableName="t_pharmacy">
+            <column name="c_website"/>
+            <column name="c_whatsapp"/>
+            <column name="c_facebook"/>
+            <column name="c_instagram"/>
+            <column name="c_tiktok"/>
+        </dropColumn>
+    </changeSet>
+
+</databaseChangeLog>
+

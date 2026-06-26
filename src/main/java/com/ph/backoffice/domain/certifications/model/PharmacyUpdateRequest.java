@@ -1,6 +1,8 @@
 package com.ph.backoffice.domain.certifications.model;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public record PharmacyUpdateRequest(
     String name,
@@ -15,14 +17,9 @@ public record PharmacyUpdateRequest(
     Integer deliveryRadiusKm,
     List<OpeningHour> openingHours,
     List<DutySchedule> dutySchedules,
-    List<PaymentMethod> paymentMethods,
-    List<SocialLink> socialLinks) {
+    Map<String, String> paymentMethods,
+    Map<String, String> socialLinks) {
 
-  public record OpeningHour(String dayOfWeek, String openTime, String closeTime, Boolean isClosed) {}
-
-  public record DutySchedule(String startDate, String endDate, String startTime, String endTime) {}
-
-  public record PaymentMethod(String type, String accountNumber) {}
-
-  public record SocialLink(String type, String value) {}
+  public record DutySchedule(
+      LocalDate startDate, LocalDate endDate, String startTime, String endTime) {}
 }

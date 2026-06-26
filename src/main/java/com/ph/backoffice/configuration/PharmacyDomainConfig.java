@@ -1,22 +1,25 @@
 package com.ph.backoffice.configuration;
 
-import com.ph.backoffice.domain.certifications.port.in.feat.CreatePharmacy;
 import com.ph.backoffice.domain.certifications.port.in.feat.CreateCertificationRequest;
+import com.ph.backoffice.domain.certifications.port.in.feat.CreatePharmacy;
 import com.ph.backoffice.domain.certifications.port.in.feat.DeletePharmacy;
 import com.ph.backoffice.domain.certifications.port.in.feat.GetPharmacy;
+import com.ph.backoffice.domain.certifications.port.in.feat.ListCurrentUserPharmacies;
 import com.ph.backoffice.domain.certifications.port.in.feat.ListPharmacies;
 import com.ph.backoffice.domain.certifications.port.in.feat.UpdatePharmacy;
 import com.ph.backoffice.domain.certifications.port.in.feat.VerifyPharmacy;
-import com.ph.backoffice.domain.certifications.port.in.impl.CreatePharmacyImpl;
 import com.ph.backoffice.domain.certifications.port.in.impl.CreateCertificationRequestImpl;
+import com.ph.backoffice.domain.certifications.port.in.impl.CreatePharmacyImpl;
 import com.ph.backoffice.domain.certifications.port.in.impl.DeletePharmacyImpl;
 import com.ph.backoffice.domain.certifications.port.in.impl.GetPharmacyImpl;
+import com.ph.backoffice.domain.certifications.port.in.impl.ListCurrentUserPharmaciesImpl;
 import com.ph.backoffice.domain.certifications.port.in.impl.ListPharmaciesImpl;
 import com.ph.backoffice.domain.certifications.port.in.impl.UpdatePharmacyImpl;
 import com.ph.backoffice.domain.certifications.port.in.impl.VerifyPharmacyImpl;
 import com.ph.backoffice.domain.certifications.port.out.feat.CertificationRequestRepository;
 import com.ph.backoffice.domain.certifications.port.out.feat.OwnerRepository;
 import com.ph.backoffice.domain.certifications.port.out.feat.PharmacyRepository;
+import com.ph.backoffice.domain.certifications.port.out.feat.PharmacyUpdateMapper;
 import com.ph.backoffice.domain.certifications.service.CertificationDomainService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,6 +41,12 @@ public class PharmacyDomainConfig {
   }
 
   @Bean
+  public ListCurrentUserPharmacies listCurrentUserPharmacies(
+      PharmacyRepository pharmacyRepository) {
+    return new ListCurrentUserPharmaciesImpl(pharmacyRepository);
+  }
+
+  @Bean
   public ListPharmacies listPharmacies(PharmacyRepository pharmacyRepository) {
     return new ListPharmaciesImpl(pharmacyRepository);
   }
@@ -48,13 +57,18 @@ public class PharmacyDomainConfig {
   }
 
   @Bean
-  public UpdatePharmacy updatePharmacy(PharmacyRepository pharmacyRepository) {
-    return new UpdatePharmacyImpl(pharmacyRepository);
+  public UpdatePharmacy updatePharmacy(
+      PharmacyRepository pharmacyRepository,
+      PharmacyUpdateMapper pharmacyUpdateMapper,
+      CertificationDomainService certificationDomainService) {
+    return new UpdatePharmacyImpl(pharmacyRepository, pharmacyUpdateMapper, certificationDomainService);
   }
 
   @Bean
-  public DeletePharmacy deletePharmacy(PharmacyRepository pharmacyRepository) {
-    return new DeletePharmacyImpl(pharmacyRepository);
+  public DeletePharmacy deletePharmacy(
+      PharmacyRepository pharmacyRepository,
+      CertificationDomainService certificationDomainService) {
+    return new DeletePharmacyImpl(pharmacyRepository, certificationDomainService);
   }
 
   @Bean
@@ -63,7 +77,8 @@ public class PharmacyDomainConfig {
   }
 
   @Bean
-  public CertificationDomainService certificationDomainService(PharmacyRepository pharmacyRepository) {
+  public CertificationDomainService certificationDomainService(
+      PharmacyRepository pharmacyRepository) {
     return new CertificationDomainService(pharmacyRepository);
   }
 
@@ -71,6 +86,7 @@ public class PharmacyDomainConfig {
   public CreateCertificationRequest createCertificationRequest(
       CertificationRequestRepository certificationRequestRepository,
       CertificationDomainService certificationDomainService) {
-    return new CreateCertificationRequestImpl(certificationRequestRepository, certificationDomainService);
+    return new CreateCertificationRequestImpl(
+        certificationRequestRepository, certificationDomainService);
   }
 }

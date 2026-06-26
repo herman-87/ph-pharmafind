@@ -3,6 +3,7 @@ package com.ph.backoffice.domain.certifications.port.in.impl;
 import com.ph.backoffice.domain.certifications.Owner;
 import com.ph.backoffice.domain.certifications.Pharmacy;
 import com.ph.backoffice.domain.certifications.model.PharmacyCreateRequest;
+import com.ph.backoffice.domain.certifications.model.PharmacyData;
 import com.ph.backoffice.domain.certifications.port.in.feat.CreatePharmacy;
 import com.ph.backoffice.domain.certifications.port.out.feat.OwnerRepository;
 import com.ph.backoffice.domain.certifications.port.out.feat.PharmacyRepository;
@@ -24,19 +25,24 @@ public class CreatePharmacyImpl implements CreatePharmacy {
 
     owner = ownerRepository.save(owner);
 
-    String gpsCoordinates = pharmacyDomainService.formatGpsCoordinates(request.latitude(), request.longitude());
-    String quarter = pharmacyDomainService.resolveQuarter(request.locality(), request.district());
+    PharmacyData data =
+        new PharmacyData(
+            request.name(),
+            request.email(),
+            request.phone(),
+            request.city(),
+            pharmacyDomainService.resolveQuarter(request.locality(), request.district()),
+            request.fullAddress(),
+            pharmacyDomainService.formatGpsCoordinates(request.latitude(), request.longitude()),
+            request.registrationNumber(),
+            request.taxId(),
+            request.is24h(),
+            request.deliveryAvailable(),
+            request.deliveryRadiusKm(),
+            request.openingHours(),
+            request.paymentMethods(),
+            request.socialLinks());
 
-    Pharmacy pharmacy = Pharmacy.create(
-        request.name(),
-        request.email(),
-        request.phone(),
-        request.city(),
-        quarter,
-        request.fullAddress(),
-        gpsCoordinates,
-        owner);
-
-    return pharmacyRepository.save(pharmacy).getId();
+    return pharmacyRepository.save(Pharmacy.create(data, owner)).getId();
   }
 }

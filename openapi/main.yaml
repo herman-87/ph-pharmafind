@@ -81,14 +81,9 @@ components:
         accountNumber:
           type: string
           example: "+237677000000"
-    SocialLinkDTO:
-      type: object
-      properties:
-        type:
-          type: string
-          enum: [FACEBOOK, INSTAGRAM, WHATSAPP, WEBSITE]
-        value:
-          type: string
+    SocialMediaTypeEnum:
+        type: string
+        enum: [FACEBOOK, INSTAGRAM, TIKTOK, WHATSAPP, WEBSITE, TWITTER, LINKEDIN, YOUTUBE, TELEGRAM, VIBER]
     CreatePharmacyRequestDTO:
       type: object
       required:
@@ -160,9 +155,14 @@ components:
           items:
             $ref: '#/components/schemas/PaymentMethodDTO'
         socialLinks:
-          type: array
-          items:
-            $ref: '#/components/schemas/SocialLinkDTO'
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            WEBSITE: "https://mapharmacie.bf"
+            FACEBOOK: "https://facebook.com/mapharmacie"
+            INSTAGRAM: "https://instagram.com/mapharmacie"
+            WHATSAPP: "+226 70 00 00 00"
     UpdatePharmacyRequestDTO:
       type: object
       properties:
@@ -199,9 +199,9 @@ components:
           items:
             $ref: '#/components/schemas/PaymentMethodDTO'
         socialLinks:
-          type: array
-          items:
-            $ref: '#/components/schemas/SocialLinkDTO'
+          type: object
+          additionalProperties:
+            type: string
     PharmacyResponseDTO:
       type: object
       properties:
@@ -249,9 +249,9 @@ components:
           items:
             $ref: '#/components/schemas/PaymentMethodDTO'
         socialLinks:
-          type: array
-          items:
-            $ref: '#/components/schemas/SocialLinkDTO'
+          type: object
+          additionalProperties:
+            type: string
         createdAt:
           type: string
           format: date-time
@@ -287,11 +287,41 @@ components:
           type: string
           format: uuid
 paths:
-  /pharmacies:
+  /me/pharmacies:
+    get:
+      tags: [Pharmacy]
+      operationId: getMyPharmacies
+      summary: List pharmacies owned by the current authenticated user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Paginated list of owned pharmacies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PharmacyPageResponseDTO'
+        '401':
+          description: "40101 — Not authenticated"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
     post:
       tags: [Pharmacy]
       operationId: createPharmacy
-      summary: Create a pharmacy
+      summary: Create a pharmacy (owner)
       security:
         - BearerAuth: []
       requestBody:
@@ -319,18 +349,136 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponseDTO'
+        '409':
+          description: "40901 — Email already exists, 40902 — Phone already exists"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
+
+  /me/pharmacies/{id}:
+    put:
+      tags: [Pharmacy]
+      operationId: updatePharmacy
+      summary: Update a pharmacy (owner)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePharmacyRequestDTO'
+      responses:
+        '204':
+          description: Update completed — no content returned
+        '401':
+          description: "40101 — Not authenticated, 40102 — Token expired, 40103 — Token invalid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
         '403':
           description: "40301 — Access denied"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponseDTO'
-        '409':
-          description: "40901 — Email already exists, 40902 — Phone already exists, 40903 — Pharmacy name already exists"
+        '404':
+          description: "40401 — Pharmacy not found"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponseDTO'
+    delete:
+      tags: [Pharmacy]
+      operationId: deletePharmacy
+      summary: Delete a pharmacy (owner)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Deletion completed — no content returned
+        '401':
+          description: "40101 — Not authenticated, 40102 — Token expired, 40103 — Token invalid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
+        '403':
+          description: "40301 — Access denied"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
+        '404':
+          description: "40401 — Pharmacy not found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
+
+  /me/pharmacies/{id}/certification-requests:
+    post:
+      tags: [Pharmacy]
+      operationId: createCertificationRequest
+      summary: Create a certification request for a pharmacy (owner)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCertificationRequestDTO'
+      responses:
+        '201':
+          description: Certification request created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificationRequestIdResponseDTO'
+        '401':
+          description: "40101 — Not authenticated, 40102 — Token expired, 40103 — Token invalid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
+        '403':
+          description: "40301 — Access denied"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
+        '404':
+          description: "40401 — Pharmacy not found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponseDTO'
+
+  /public/pharmacies:
     get:
       tags: [Pharmacy]
       operationId: listPharmacies
@@ -362,7 +510,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PharmacyPageResponseDTO'
 
-  /pharmacies/{id}:
+  /public/pharmacies/{id}:
     get:
       tags: [Pharmacy]
       operationId: getPharmacy
@@ -387,87 +535,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponseDTO'
-    put:
-      tags: [Pharmacy]
-      operationId: updatePharmacy
-      summary: Update a pharmacy
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdatePharmacyRequestDTO'
-      responses:
-        '204':
-          description: Update completed — no content returned
-        '400':
-          description: "40001 — Validation error, 40002 — Invalid email format, 40003 — Invalid phone format"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponseDTO'
-        '401':
-          description: "40101 — Not authenticated, 40102 — Token expired, 40103 — Token invalid"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponseDTO'
-        '403':
-          description: "40301 — Access denied"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponseDTO'
-        '404':
-          description: "40401 — Pharmacy not found"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponseDTO'
-    delete:
-      tags: [Pharmacy]
-      operationId: deletePharmacy
-      summary: Delete a pharmacy
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '204':
-          description: Deletion completed — no content returned
-        '401':
-          description: "40101 — Not authenticated, 40102 — Token expired, 40103 — Token invalid"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponseDTO'
-        '403':
-          description: "40301 — Access denied"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponseDTO'
-        '404':
-          description: "40401 — Pharmacy not found"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponseDTO'
-  /pharmacies/{id}/verify:
+
+  /public/pharmacies/{id}/verify:
     post:
       tags: [Pharmacy]
       operationId: verifyPharmacy
@@ -489,57 +558,6 @@ paths:
           description: Account verified successfully
         '400':
           description: "40006 — Invalid token, 40007 — Token expired"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponseDTO'
-        '404':
-          description: "40401 — Pharmacy not found"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponseDTO'
-  /pharmacies/{id}/certification-requests:
-    post:
-      tags: [Pharmacy]
-      operationId: createCertificationRequest
-      summary: Create a certification request for a pharmacy
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateCertificationRequestDTO'
-      responses:
-        '201':
-          description: Certification request created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CertificationRequestIdResponseDTO'
-        '400':
-          description: "40001 — Validation error"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponseDTO'
-        '401':
-          description: "40101 — Not authenticated, 40102 — Token expired, 40103 — Token invalid"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponseDTO'
-        '403':
-          description: "40301 — Access denied"
           content:
             application/json:
               schema:
