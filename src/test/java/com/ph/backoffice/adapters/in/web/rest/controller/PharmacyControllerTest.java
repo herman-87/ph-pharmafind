@@ -17,6 +17,8 @@ import com.ph.backoffice.application.pharmacy.usecase.UpdatePharmacyUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.VerifyPharmacyUseCase;
 import com.ph.backoffice.domain.certifications.Pharmacy;
 import com.ph.backoffice.domain.certifications.exception.PharmacyNotFoundException;
+import com.ph.backoffice.domain.certifications.model.PharmacyCreateRequest;
+import com.ph.backoffice.domain.certifications.model.PharmacyUpdateRequest;
 import com.ph.pharmafind.generated.model.CreateCertificationRequestDTO;
 import com.ph.pharmafind.generated.model.CreatePharmacyRequestDTO;
 import com.ph.pharmafind.generated.model.OpeningHourDTO;
@@ -93,7 +95,9 @@ class PharmacyControllerTest {
   @Test
   void createPharmacy_returns201WithId() {
     UUID pharmacyId = UUID.randomUUID();
-    when(pharmacyMapper.toCreateRequest(any())).thenReturn(null);
+    when(pharmacyMapper.toCreateRequest(any())).thenReturn(
+        new PharmacyCreateRequest(null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null));
     when(createPharmacyUseCase.execute(any())).thenReturn(pharmacyId);
     when(pharmacyMapper.toPharmacyIdResponseDTO(pharmacyId))
         .thenReturn(new PharmacyIdResponseDTO().id(pharmacyId));
@@ -209,7 +213,9 @@ class PharmacyControllerTest {
   @Test
   void updatePharmacy_returns204() {
     UUID id = UUID.randomUUID();
-    when(pharmacyMapper.toUpdateRequest(any())).thenReturn(null);
+    var expectedRequest = new PharmacyUpdateRequest(null, null, null, null, null, null, null,
+        null, null, null, null, null, null, null);
+    when(pharmacyMapper.toUpdateRequest(any())).thenReturn(expectedRequest);
     doNothing().when(updatePharmacyUseCase).execute(eq(id), any());
 
     RestAssuredMockMvc.given()
@@ -225,7 +231,9 @@ class PharmacyControllerTest {
   @Test
   void updatePharmacy_returns404_whenNotFound() {
     UUID id = UUID.randomUUID();
-    when(pharmacyMapper.toUpdateRequest(any())).thenReturn(null);
+    var expectedRequest = new PharmacyUpdateRequest(null, null, null, null, null, null, null,
+        null, null, null, null, null, null, null);
+    when(pharmacyMapper.toUpdateRequest(any())).thenReturn(expectedRequest);
     doThrow(new PharmacyNotFoundException(id)).when(updatePharmacyUseCase).execute(any(), any());
 
     RestAssuredMockMvc.given()

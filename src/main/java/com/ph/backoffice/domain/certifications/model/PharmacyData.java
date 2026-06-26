@@ -1,9 +1,8 @@
 package com.ph.backoffice.domain.certifications.model;
 
-import lombok.Builder;
-
 import java.util.List;
 import java.util.Map;
+import lombok.Builder;
 
 @Builder
 public record PharmacyData(

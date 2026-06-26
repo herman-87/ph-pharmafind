@@ -20,7 +20,9 @@ public class UpdatePharmacyImpl implements UpdatePharmacy {
   @Override
   public void updatePharmacy(UUID pharmacyId, PharmacyUpdateRequest request, UUID callerId) {
     Pharmacy pharmacy =
-        pharmacyRepository.findById(pharmacyId).orElseThrow(() -> new PharmacyNotFoundException(pharmacyId));
+        pharmacyRepository
+            .findById(pharmacyId)
+            .orElseThrow(() -> new PharmacyNotFoundException(pharmacyId));
     certificationDomainService.validateOwnership(pharmacy, callerId);
     pharmacyUpdateMapper.update(request, pharmacy);
 

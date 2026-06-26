@@ -61,7 +61,8 @@ public class PharmacyDomainConfig {
       PharmacyRepository pharmacyRepository,
       PharmacyUpdateMapper pharmacyUpdateMapper,
       CertificationDomainService certificationDomainService) {
-    return new UpdatePharmacyImpl(pharmacyRepository, pharmacyUpdateMapper, certificationDomainService);
+    return new UpdatePharmacyImpl(
+        pharmacyRepository, pharmacyUpdateMapper, certificationDomainService);
   }
 
   @Bean

@@ -210,6 +210,15 @@ components:
           format: uuid
         name:
           type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        registrationNumber:
+          type: string
+        taxId:
+          type: string
         status:
           type: string
           enum: [PENDING_VERIFICATION, ACTIVE, SUSPENDED, REJECTED]
@@ -253,6 +262,9 @@ components:
           additionalProperties:
             type: string
         createdAt:
+          type: string
+          format: date-time
+        updatedAt:
           type: string
           format: date-time
     PharmacyPageResponseDTO:
