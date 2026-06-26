@@ -32,8 +32,10 @@ import com.ph.pharmafind.generated.model.PharmacyPageResponseDTO;
 import com.ph.pharmafind.generated.model.PharmacyResponseDTO;
 import com.ph.pharmafind.generated.model.UpdatePharmacyRequestDTO;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -346,8 +348,8 @@ class PharmacyControllerTest {
             .creationDate(LocalDate.of(2020, 1, 15))
             .notes("Test")
             .status(CertificationRequest.RequestStatus.DRAFT)
-            .createdAt(LocalDateTime.now())
-            .updatedAt(LocalDateTime.now())
+            .createdAt(LocalDateTime.now(Clock.system(ZoneId.of("Africa/Douala"))))
+            .updatedAt(LocalDateTime.now(Clock.system(ZoneId.of("Africa/Douala"))))
             .build();
     when(getCertificationRequestUseCase.execute(pharmacyId, requestId)).thenReturn(request);
 

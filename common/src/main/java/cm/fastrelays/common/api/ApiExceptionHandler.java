@@ -5,9 +5,11 @@ import cm.fastrelays.common.exception.ConflictException;
 import cm.fastrelays.common.exception.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -16,7 +18,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class ApiExceptionHandler {
+
+  private final Clock clock;
 
   @ExceptionHandler(ConflictException.class)
   ResponseEntity<ApiErrorResponse> handleConflict(
@@ -68,7 +73,7 @@ public class ApiExceptionHandler {
     var errorCode = extractErrorCode(ex);
     ApiErrorResponse body =
         new ApiErrorResponse(
-            OffsetDateTime.now(),
+            OffsetDateTime.now(clock),
             status.value(),
             status.getReasonPhrase(),
             message,

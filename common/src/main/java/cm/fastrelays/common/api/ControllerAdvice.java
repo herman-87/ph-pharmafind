@@ -3,9 +3,11 @@ package cm.fastrelays.common.api;
 import cm.fastrelays.common.exception.ApiException;
 import cm.fastrelays.common.exception.ExternalServiceCallException;
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +20,15 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class ControllerAdvice {
+
+  private final Clock clock;
 
   private ResponseEntity<Map<String, Object>> errorResponse(
       HttpStatus status, String message, String details, Exception ex, HttpServletRequest request) {
     Map<String, Object> body = new HashMap<>();
-    body.put("timestamp", LocalDateTime.now());
+    body.put("timestamp", LocalDateTime.now(clock));
     body.put("status", status.value());
     body.put("error", status.getReasonPhrase());
     body.put("message", message);

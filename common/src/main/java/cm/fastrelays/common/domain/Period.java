@@ -7,7 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Objects;
 
 @EqualsAndHashCode
@@ -16,6 +18,8 @@ import java.util.Objects;
 @Setter
 @Builder
 public class Period {
+
+    private static final Clock CLOCK = Clock.system(ZoneId.of("Africa/Douala"));
 
     @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;
@@ -39,7 +43,7 @@ public class Period {
     }
 
     public boolean isActive() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(CLOCK);
         if (endDate == null) {
             return !now.isBefore(startDate);
         }

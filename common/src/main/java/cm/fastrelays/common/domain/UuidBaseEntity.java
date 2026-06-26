@@ -14,7 +14,9 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
+import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.UUID;
 
 @Getter
@@ -24,6 +26,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public abstract class UuidBaseEntity implements Serializable {
+
+  private static final Clock CLOCK = Clock.system(ZoneId.of("Africa/Douala"));
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -38,12 +42,12 @@ public abstract class UuidBaseEntity implements Serializable {
 
   @PrePersist
   protected void onCreate() {
-    this.createdAt = LocalDateTime.now();
-    this.updatedAt = LocalDateTime.now();
+    this.createdAt = LocalDateTime.now(CLOCK);
+    this.updatedAt = LocalDateTime.now(CLOCK);
   }
 
   @PreUpdate
   protected void onUpdate() {
-    this.updatedAt = LocalDateTime.now();
+    this.updatedAt = LocalDateTime.now(CLOCK);
   }
 }

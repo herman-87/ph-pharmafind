@@ -3,14 +3,19 @@ package com.ph.backoffice.adapters.in.web.rest.exception;
 import com.ph.backoffice.domain.certifications.exception.DomainException;
 import com.ph.pharmafind.generated.model.ApiErrorResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.Clock;
 import java.time.LocalDateTime;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
+
+  private final Clock clock;
 
   @ExceptionHandler(DomainException.class)
   public ResponseEntity<ApiErrorResponseDTO> handleDomainException(
@@ -25,7 +30,7 @@ public class GlobalExceptionHandler {
 
     ApiErrorResponseDTO errorResponse =
         new ApiErrorResponseDTO()
-            .timestamp(LocalDateTime.now())
+            .timestamp(LocalDateTime.now(clock))
             .status(status.value())
             .error(status.getReasonPhrase())
             .message(ex.getMessage())
