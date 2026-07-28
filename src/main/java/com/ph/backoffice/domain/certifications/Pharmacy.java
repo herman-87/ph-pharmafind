@@ -1,8 +1,8 @@
 package com.ph.backoffice.domain.certifications;
 
 import cm.fastrelays.common.domain.UuidBaseEntity;
-import com.ph.backoffice.adapters.out.persistence.jpa.converter.OpeningHourListConverter;
 import com.ph.backoffice.domain.certifications.model.OpeningHour;
+import com.ph.backoffice.domain.certifications.model.OpeningHourListConverter;
 import com.ph.backoffice.domain.certifications.model.PharmacyData;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;

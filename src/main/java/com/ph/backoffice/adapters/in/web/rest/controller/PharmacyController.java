@@ -1,5 +1,6 @@
 package com.ph.backoffice.adapters.in.web.rest.controller;
 
+import cm.fastrelays.common.security.CurrentUser;
 import com.ph.backoffice.adapters.in.web.rest.mapper.PharmacyMapper;
 import com.ph.backoffice.application.pharmacy.usecase.CreateCertificationRequestUseCase;
 import com.ph.backoffice.application.pharmacy.usecase.CreatePharmacyUseCase;
@@ -23,7 +24,6 @@ import com.ph.pharmafind.generated.model.UpdatePharmacyRequestDTO;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -55,8 +55,7 @@ public class PharmacyController implements PharmacyApi {
   @Override
   public ResponseEntity<PharmacyPageResponseDTO> listPharmacies(
       Integer page, Integer size, String city, String search) {
-    var pageable = PageRequest.of(page, size);
-    var pharmacies = listPharmaciesUseCase.execute(pageable, city, search);
+    var pharmacies = listPharmaciesUseCase.execute(page, size, city, search);
     return ResponseEntity.ok(pharmacyMapper.toPharmacyPageResponseDTO(pharmacies));
   }
 
@@ -88,8 +87,7 @@ public class PharmacyController implements PharmacyApi {
 
   @Override
   public ResponseEntity<PharmacyPageResponseDTO> getMyPharmacies(Integer page, Integer size) {
-    var pageable = PageRequest.of(page, size);
-    var pharmacies = listCurrentUserPharmaciesUseCase.execute(pageable);
+    var pharmacies = listCurrentUserPharmaciesUseCase.execute(page, size);
     return ResponseEntity.ok(pharmacyMapper.toPharmacyPageResponseDTO(pharmacies));
   }
 
@@ -108,7 +106,8 @@ public class PharmacyController implements PharmacyApi {
             dto.getOwnerIdVersoDocument(),
             dto.getPharmacyLicenseDocument(),
             dto.getNotes());
-    var requestId = createCertificationRequestUseCase.execute(id, data);
+    var callerId = CurrentUser.getUserId();
+    var requestId = createCertificationRequestUseCase.execute(id, data, callerId);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(new CertificationRequestIdResponseDTO().id(requestId));
   }
@@ -116,7 +115,8 @@ public class PharmacyController implements PharmacyApi {
   @Override
   public ResponseEntity<CertificationRequestResponseDTO> getCertificationRequest(
       UUID pharmacyId, UUID requestId) {
-    var request = getCertificationRequestUseCase.execute(pharmacyId, requestId);
+    var callerId = CurrentUser.getUserId();
+    var request = getCertificationRequestUseCase.execute(pharmacyId, requestId, callerId);
     return ResponseEntity.ok(toResponseDTO(request));
   }
 

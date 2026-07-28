@@ -14,7 +14,7 @@ public class GetCertificationRequestUseCase {
   private final GetCertificationRequest getCertificationRequest;
 
   @Transactional(readOnly = true)
-  public CertificationRequest execute(UUID pharmacyId, UUID requestId) {
-    return getCertificationRequest.getCertificationRequest(pharmacyId, requestId);
+  public CertificationRequest execute(UUID pharmacyId, UUID requestId, UUID callerId) {
+    return getCertificationRequest.getCertificationRequest(pharmacyId, requestId, callerId);
   }
 }

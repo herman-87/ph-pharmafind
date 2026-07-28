@@ -1,17 +1,16 @@
 package com.ph.backoffice.domain.certifications.port.out.feat;
 
 import com.ph.backoffice.domain.certifications.Pharmacy;
+import com.ph.backoffice.domain.certifications.model.DomainPage;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 public interface PharmacyRepository {
   Pharmacy save(Pharmacy pharmacy);
 
   Optional<Pharmacy> findById(UUID id);
 
-  Page<Pharmacy> findAll(Pageable pageable);
+  DomainPage<Pharmacy> findAll(int page, int size);
 
   void delete(Pharmacy pharmacy);
 
@@ -19,12 +18,12 @@ public interface PharmacyRepository {
 
   boolean existsByPhone(String phone);
 
-  Page<Pharmacy> findByCityContainingIgnoreCase(String city, Pageable pageable);
+  DomainPage<Pharmacy> findByCityContainingIgnoreCase(String city, int page, int size);
 
-  Page<Pharmacy> findByNameContainingIgnoreCaseOrCityContainingIgnoreCase(
-      String name, String city, Pageable pageable);
+  DomainPage<Pharmacy> findByNameContainingIgnoreCaseOrCityContainingIgnoreCase(
+      String name, String city, int page, int size);
 
-  Page<Pharmacy> findByOwnerUsername(String userName, Pageable pageable);
+  DomainPage<Pharmacy> findByOwnerUsername(String userName, int page, int size);
 
-  Page<Pharmacy> findByOwnerUserId(UUID userId, Pageable pageable);
+  DomainPage<Pharmacy> findByOwnerUserId(UUID userId, int page, int size);
 }

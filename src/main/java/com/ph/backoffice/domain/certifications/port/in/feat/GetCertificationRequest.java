@@ -4,5 +4,5 @@ import com.ph.backoffice.domain.certifications.CertificationRequest;
 import java.util.UUID;
 
 public interface GetCertificationRequest {
-  CertificationRequest getCertificationRequest(UUID pharmacyId, UUID requestId);
+  CertificationRequest getCertificationRequest(UUID pharmacyId, UUID requestId, UUID callerId);
 }

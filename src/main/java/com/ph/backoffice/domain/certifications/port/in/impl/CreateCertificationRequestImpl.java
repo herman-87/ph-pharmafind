@@ -1,6 +1,5 @@
 package com.ph.backoffice.domain.certifications.port.in.impl;
 
-import cm.fastrelays.common.security.CurrentUser;
 import com.ph.backoffice.domain.certifications.CertificationRequest;
 import com.ph.backoffice.domain.certifications.Pharmacy;
 import com.ph.backoffice.domain.certifications.model.CertificationRequestCreateData;
@@ -18,10 +17,10 @@ public class CreateCertificationRequestImpl implements CreateCertificationReques
 
   @Override
   public CertificationRequest createCertificationRequest(
-      UUID pharmacyId, CertificationRequestCreateData data) {
+      UUID pharmacyId, CertificationRequestCreateData data, UUID callerId) {
     Pharmacy pharmacy = certificationDomainService.getPharmacy(pharmacyId);
 
-    certificationDomainService.validateOwnership(pharmacy, CurrentUser.getUserId());
+    certificationDomainService.validateOwnership(pharmacy, callerId);
 
     CertificationRequest request = CertificationRequest.create(pharmacy, data);
     return certificationRequestRepository.save(request);

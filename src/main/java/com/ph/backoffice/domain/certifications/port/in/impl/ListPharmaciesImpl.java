@@ -1,11 +1,10 @@
 package com.ph.backoffice.domain.certifications.port.in.impl;
 
 import com.ph.backoffice.domain.certifications.Pharmacy;
+import com.ph.backoffice.domain.certifications.model.DomainPage;
 import com.ph.backoffice.domain.certifications.port.in.feat.ListPharmacies;
 import com.ph.backoffice.domain.certifications.port.out.feat.PharmacyRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 @RequiredArgsConstructor
 public class ListPharmaciesImpl implements ListPharmacies {
@@ -13,14 +12,14 @@ public class ListPharmaciesImpl implements ListPharmacies {
   private final PharmacyRepository pharmacyRepository;
 
   @Override
-  public Page<Pharmacy> listPharmacies(Pageable pageable, String city, String search) {
+  public DomainPage<Pharmacy> listPharmacies(int page, int size, String city, String search) {
     if (city != null && !city.isEmpty()) {
-      return pharmacyRepository.findByCityContainingIgnoreCase(city, pageable);
+      return pharmacyRepository.findByCityContainingIgnoreCase(city, page, size);
     }
     if (search != null && !search.isEmpty()) {
       return pharmacyRepository.findByNameContainingIgnoreCaseOrCityContainingIgnoreCase(
-          search, search, pageable);
+          search, search, page, size);
     }
-    return pharmacyRepository.findAll(pageable);
+    return pharmacyRepository.findAll(page, size);
   }
 }

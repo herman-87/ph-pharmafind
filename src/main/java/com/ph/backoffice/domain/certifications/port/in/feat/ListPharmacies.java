@@ -1,9 +1,8 @@
 package com.ph.backoffice.domain.certifications.port.in.feat;
 
 import com.ph.backoffice.domain.certifications.Pharmacy;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.ph.backoffice.domain.certifications.model.DomainPage;
 
 public interface ListPharmacies {
-  Page<Pharmacy> listPharmacies(Pageable pageable, String city, String search);
+  DomainPage<Pharmacy> listPharmacies(int page, int size, String city, String search);
 }

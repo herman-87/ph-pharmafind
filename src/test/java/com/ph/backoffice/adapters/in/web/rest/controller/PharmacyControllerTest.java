@@ -2,6 +2,7 @@ package com.ph.backoffice.adapters.in.web.rest.controller;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -21,6 +22,7 @@ import com.ph.backoffice.domain.certifications.Pharmacy;
 import com.ph.backoffice.domain.certifications.exception.CertificationRequestNotFoundException;
 import com.ph.backoffice.domain.certifications.exception.PharmacyNotFoundException;
 import com.ph.backoffice.domain.certifications.model.CertificationRequestCreateData;
+import com.ph.backoffice.domain.certifications.model.DomainPage;
 import com.ph.backoffice.domain.certifications.model.PharmacyCreateRequest;
 import com.ph.backoffice.domain.certifications.model.PharmacyUpdateRequest;
 import com.ph.pharmafind.generated.model.CreateCertificationRequestDTO;
@@ -43,7 +45,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
@@ -138,7 +139,7 @@ class PharmacyControllerTest {
 
   @Test
   void listPharmacies_returns200() {
-    when(listPharmaciesUseCase.execute(any(), any(), any())).thenReturn(new PageImpl<>(List.of()));
+    when(listPharmaciesUseCase.execute(anyInt(), anyInt(), any(), any())).thenReturn(new DomainPage<>(List.of(), 0, 10, 0, 0));
     when(pharmacyMapper.toPharmacyPageResponseDTO(any()))
         .thenReturn(new PharmacyPageResponseDTO().content(List.of()).totalElements(0L));
 
@@ -150,7 +151,7 @@ class PharmacyControllerTest {
         .statusCode(HttpStatus.OK.value())
         .body("totalElements", equalTo(0));
 
-    verify(listPharmaciesUseCase).execute(any(), any(), any());
+    verify(listPharmaciesUseCase).execute(anyInt(), anyInt(), any(), any());
   }
 
   // ─── GET /public/pharmacies/{id} ─────────────────────────────────────────
@@ -214,7 +215,7 @@ class PharmacyControllerTest {
 
   @Test
   void getMyPharmacies_returns200() {
-    when(listCurrentUserPharmaciesUseCase.execute(any())).thenReturn(new PageImpl<>(List.of()));
+    when(listCurrentUserPharmaciesUseCase.execute(anyInt(), anyInt())).thenReturn(new DomainPage<>(List.of(), 0, 10, 0, 0));
     when(pharmacyMapper.toPharmacyPageResponseDTO(any()))
         .thenReturn(new PharmacyPageResponseDTO().content(List.of()).totalElements(0L));
 
@@ -226,7 +227,7 @@ class PharmacyControllerTest {
         .statusCode(HttpStatus.OK.value())
         .body("totalElements", equalTo(0));
 
-    verify(listCurrentUserPharmaciesUseCase).execute(any());
+    verify(listCurrentUserPharmaciesUseCase).execute(anyInt(), anyInt());
   }
 
   // ─── PUT /me/pharmacies/{id} ──────────────────────────────────────────────
@@ -300,7 +301,7 @@ class PharmacyControllerTest {
     UUID pharmacyId = UUID.randomUUID();
     UUID certifId = UUID.randomUUID();
     when(createCertificationRequestUseCase.execute(
-            eq(pharmacyId), any(CertificationRequestCreateData.class)))
+            eq(pharmacyId), any(CertificationRequestCreateData.class), any()))
         .thenReturn(certifId);
 
     RestAssuredMockMvc.given()
@@ -312,7 +313,7 @@ class PharmacyControllerTest {
         .body("id", equalTo(certifId.toString()));
 
     verify(createCertificationRequestUseCase)
-        .execute(eq(pharmacyId), any(CertificationRequestCreateData.class));
+        .execute(eq(pharmacyId), any(CertificationRequestCreateData.class), any());
   }
 
   @Test
@@ -320,7 +321,7 @@ class PharmacyControllerTest {
     UUID pharmacyId = UUID.randomUUID();
     doThrow(new PharmacyNotFoundException(pharmacyId))
         .when(createCertificationRequestUseCase)
-        .execute(any(), any(CertificationRequestCreateData.class));
+        .execute(any(), any(CertificationRequestCreateData.class), any());
 
     RestAssuredMockMvc.given()
         .contentType("application/json")
@@ -351,7 +352,7 @@ class PharmacyControllerTest {
             .createdAt(LocalDateTime.now(Clock.system(ZoneId.of("Africa/Douala"))))
             .updatedAt(LocalDateTime.now(Clock.system(ZoneId.of("Africa/Douala"))))
             .build();
-    when(getCertificationRequestUseCase.execute(pharmacyId, requestId)).thenReturn(request);
+    when(getCertificationRequestUseCase.execute(eq(pharmacyId), eq(requestId), any())).thenReturn(request);
 
     RestAssuredMockMvc.given()
         .get("/me/pharmacies/{id}/certification-requests/{requestId}", pharmacyId, requestId)
@@ -364,7 +365,7 @@ class PharmacyControllerTest {
         .body("legalRepresentative", equalTo("Dr. Aïcha OUEDRAOGO"))
         .body("status", equalTo("DRAFT"));
 
-    verify(getCertificationRequestUseCase).execute(pharmacyId, requestId);
+    verify(getCertificationRequestUseCase).execute(eq(pharmacyId), eq(requestId), any());
   }
 
   @Test
@@ -373,7 +374,7 @@ class PharmacyControllerTest {
     UUID requestId = UUID.randomUUID();
     doThrow(new CertificationRequestNotFoundException(requestId))
         .when(getCertificationRequestUseCase)
-        .execute(pharmacyId, requestId);
+        .execute(pharmacyId, requestId, any());
 
     RestAssuredMockMvc.given()
         .get("/me/pharmacies/{id}/certification-requests/{requestId}", pharmacyId, requestId)

@@ -1,10 +1,9 @@
-package com.ph.backoffice.adapters.out.persistence.jpa.converter;
+package com.ph.backoffice.domain.certifications.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.ph.backoffice.domain.certifications.model.OpeningHour;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import java.util.ArrayList;

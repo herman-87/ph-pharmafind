@@ -1,6 +1,7 @@
 package com.ph.backoffice.adapters.in.web.rest.mapper;
 
 import com.ph.backoffice.domain.certifications.Pharmacy;
+import com.ph.backoffice.domain.certifications.model.DomainPage;
 import com.ph.backoffice.domain.certifications.model.OpeningHour;
 import com.ph.backoffice.domain.certifications.model.PharmacyCreateRequest;
 import com.ph.backoffice.domain.certifications.model.PharmacyUpdateRequest;
@@ -117,14 +118,13 @@ public interface PharmacyMapper {
 
   // ─── Page Response ──────────────────────────────────────────────────────────
 
-  default PharmacyPageResponseDTO toPharmacyPageResponseDTO(
-      org.springframework.data.domain.Page<Pharmacy> page) {
+  default PharmacyPageResponseDTO toPharmacyPageResponseDTO(DomainPage<Pharmacy> page) {
     return new PharmacyPageResponseDTO()
-        .content(toPharmacyResponseDTO(page.getContent()))
-        .page(page.getNumber())
-        .size(page.getSize())
-        .totalElements(page.getTotalElements())
-        .totalPages(page.getTotalPages());
+        .content(toPharmacyResponseDTO(page.content()))
+        .page(page.page())
+        .size(page.size())
+        .totalElements(page.totalElements())
+        .totalPages(page.totalPages());
   }
 
   // ─── Pharmacy → DTO (list) ──────────────────────────────────────────────────

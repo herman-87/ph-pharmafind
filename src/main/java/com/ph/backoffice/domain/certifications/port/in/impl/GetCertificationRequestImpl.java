@@ -1,6 +1,5 @@
 package com.ph.backoffice.domain.certifications.port.in.impl;
 
-import cm.fastrelays.common.security.CurrentUser;
 import com.ph.backoffice.domain.certifications.CertificationRequest;
 import com.ph.backoffice.domain.certifications.exception.CertificationRequestNotFoundException;
 import com.ph.backoffice.domain.certifications.port.in.feat.GetCertificationRequest;
@@ -16,9 +15,9 @@ public class GetCertificationRequestImpl implements GetCertificationRequest {
   private final CertificationDomainService certificationDomainService;
 
   @Override
-  public CertificationRequest getCertificationRequest(UUID pharmacyId, UUID requestId) {
+  public CertificationRequest getCertificationRequest(UUID pharmacyId, UUID requestId, UUID callerId) {
     var pharmacy = certificationDomainService.getPharmacy(pharmacyId);
-    certificationDomainService.validateOwnership(pharmacy, CurrentUser.getUserId());
+    certificationDomainService.validateOwnership(pharmacy, callerId);
 
     return certificationRequestRepository
         .findById(requestId)

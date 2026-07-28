@@ -21,8 +21,8 @@ public class CreateCertificationRequestUseCase {
   private final Clock clock;
 
   @Transactional
-  public UUID execute(UUID pharmacyId, CertificationRequestCreateData data) {
-    var savedCrtRequest = createCertificationRequest.createCertificationRequest(pharmacyId, data);
+  public UUID execute(UUID pharmacyId, CertificationRequestCreateData data, UUID callerId) {
+    var savedCrtRequest = createCertificationRequest.createCertificationRequest(pharmacyId, data, callerId);
     var pharmacy = savedCrtRequest.getPharmacy();
 
     var event =
